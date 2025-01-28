@@ -1,4 +1,4 @@
-# Epic 1: User Authentication & Profile Management
+# Epic 1: User Authentication & Profile Setup
 
 ## User Stories
 - As a new user, I want to create an account using my UCSD email so I can access the app
@@ -8,28 +8,34 @@
   - Fitness level (beginner/intermediate/advanced) 
   - Current fitness metrics (height, weight, etc.)
   - Profile picture
-- As a user, I want to edit my profile information to keep it up to date
-- As a user, I want to manage my privacy settings to control what information is shared
 
-# Epic 2: Schedule & Preferences Setup
+# Epic 2: Schedule & Preferences Management
 
 ## User Stories
-- As a user, I want to input my weekly schedule to find suitable workout times
-- As a user, I want to specify my preferred workout location(s):
-  - RIMAC
-  - Main Gym
-  - Home
-  - Other San Diego gyms
-- As a user, I want to set my fitness goals:
-  - Primary goal (weight loss, muscle gain, endurance, etc.)
-  - Target metrics
-  - Timeline
-- As a user, I want to indicate my workout preferences:
-  - Preferred types of exercises
-  - Equipment availability
-  - Workout duration
-  - Days per week
-- As a user, I want to update my schedule and preferences when they change
+
+### Schedule Management
+- As a user, I want to access a dedicated schedule page to:
+  - Input my weekly availability
+  - Set preferred workout times for each day
+  - Mark days I'm unavailable
+  - Update my schedule when it changes
+
+### Preferences & Goals Setup/Update
+- As a user, I want to configure all my preferences on a single settings page including:
+  - Preferred workout location(s):
+    - RIMAC
+    - Main Gym
+    - Home
+  - Fitness goals:
+    - Primary goal (weight loss, muscle gain, endurance, etc.)
+    - Target metrics
+    - Timeline
+  - Workout preferences:
+    - Preferred types of exercises
+    - Equipment availability
+    - Workout duration
+    - Days per week
+- As a user, I want to update my preferences and goals when they change
 
 # Epic 3: Personalized Workout Planning
 
