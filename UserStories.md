@@ -15,7 +15,6 @@
 
 ## User Stories
 
-### Schedule Management
 ```Schedule Screen```
 - As a user, I want to access a dedicated schedule page to:
   - Input my weekly availability
@@ -23,7 +22,6 @@
   - Mark days I'm unavailable
   - Update my schedule when it changes
 
-### Preferences & Goals Setup/Update
 ```Settings Screen```
 - As a user, I want to configure all my preferences on a single settings page including:
   - Preferred workout location(s):
