@@ -1,8 +1,10 @@
-# Epic 1: User Authentication & Profile Setup
+# Epic 1: User Authentication & Profile Setup (Login Screen, SignUp Screen)
 
-## User Stories
+## User Stories 
+```Login Screen```
 - As a new user, I want to create an account using my UCSD email so I can access the app
 - As a user, I want to log in securely to access my personal information
+```SignUp Screen```
 - As a user, I want to create my fitness profile including:
   - Basic information (name, age, gender)
   - Fitness level (beginner/intermediate/advanced) 
@@ -14,6 +16,7 @@
 ## User Stories
 
 ### Schedule Management
+```Schedule Screen```
 - As a user, I want to access a dedicated schedule page to:
   - Input my weekly availability
   - Set preferred workout times for each day
@@ -21,6 +24,7 @@
   - Update my schedule when it changes
 
 ### Preferences & Goals Setup/Update
+```Settings Screen```
 - As a user, I want to configure all my preferences on a single settings page including:
   - Preferred workout location(s):
     - RIMAC
@@ -40,6 +44,7 @@
 # Epic 3: Personalized Workout Planning
 
 ## User Stories
+```Workout Plan Screen```
 - As a user, I want to receive a personalized workout plan based on my:
   - Schedule availability
   - Location and equipment access
@@ -53,6 +58,7 @@
 # Epic 4: Social Connection
 
 ## User Stories
+```Social Screen```
 - As a user, I want to discover other users who:
   - Work out at the same location
   - Have similar fitness goals
