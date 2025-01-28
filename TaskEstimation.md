@@ -89,7 +89,6 @@
 ### Frontend [20 hours] (5 people: ~4h per person)
 - User discovery interface [4h]
 - Public profile views [3.5h]
-- Search/filter controls [3.5h]
 - Privacy settings UI [3h]
 - Bookmarking interface [3h]
 - Contact sharing controls [2h]
@@ -100,7 +99,6 @@
 ### Backend [12 hours] (2 people: ~6h per person)
 - Social graph data model [1.5h]
 - Profile visibility system [2h]
-- Search/filter API endpoints [2h]
 - Bookmarking service [1.5h]
 - Contact sharing service [1.5h]
 - Privacy management service [2h]
