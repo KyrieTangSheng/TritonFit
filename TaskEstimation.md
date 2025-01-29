@@ -1,8 +1,8 @@
-# Epic 1: User Authentication & Profile Setup [Total: 45 hours]
+# Epic 1: User Authentication & Profile Setup [Total: 74 hours]
 
 ## Tasks & Estimates
-Frontend [32 hours] + 3 hours per person for setting up environment (5 people, ~9.5 h per person)
-Backend [22 hours] + 3 hours per person for setting up environment (2 people, ~14 h per person)
+Frontend [33 hours] + 3 hours per person for setting up environment (5 people, ~9.5 h per person)
+Backend [20 hours] + 3 hours per person for setting up environment (2 people, ~14 h per person)
 
 **User Story** [8h]
 As a new user, I want to create an account using my UserName/StudentId email so I can access the app
@@ -15,7 +15,7 @@ Frontend:
 Backend:
 - User data model and database schema [2h]
 
-**User Story** [8h]
+**User Story** [16h]
 As a user, I want to log in securely to access my personal information
 
 **Tasks**
