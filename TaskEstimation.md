@@ -1,26 +1,57 @@
 # Epic 1: User Authentication & Profile Setup [Total: 28 hours]
 
 ## Tasks & Estimates
+Frontend [20 hours] + 2 hours per person for setting up envionment (5 people, ~6 h per person)
+Backend [13 hours] + 2 hours per person for setting up envionment (2 people, ~7.5 h per person)
 
-### Frontend [16 hours] (5 people: ~3.2h per person)
-- Login screen UI components [3h]
-- Signup screen UI components [3h]
-- Profile creation/edit form [4h]
-- Form validation and error handling [3h]
-- Profile image upload interface [1.5h]
-- Testing:
-  - Component unit tests [0.75h]
-  - Integration tests [0.75h]
+**User Story** [4.5h]
+As a new user, I want to create an account using my UserName/StudentId email so I can access the app
 
-### Backend [10 hours] (2 people: ~5h per person)
-- Authentication service setup [2h]
+**Tasks**
+Frontend:
+- Signup UI components [1h]
+- Write tests [1h]
+- Run and pass the tests [1h]
+Backend:
 - User data model and database schema [1.5h]
+
+**User Story** [4h]
+As a user, I want to log in securely to access my personal information
+
+**Tasks**
+Frontend:
+- Login screen UI components [1h]
+- Connect with API [1h]
+- Write tests [1h]
+- Run and pass the tests [1h]
+
+Backend:
+- Authentication service setup [2h]
 - API endpoints for auth flows [2h]
+
+**User Story** [19.5h]
+As a user, I want to create my fitness profile including:
+- Basic information (name, age, gender)
+- Fitness level (beginner/intermediate/advanced)
+- Current fitness metrics (height, weight, etc.)
+- Profile picture
+
+**Tasks**
+Frontend:
+- Profile image upload interface [2h]
+- Preference form UI components [2h]
+- Connect the preference form with APIs [3h]
+- Preference form validation and error handling [3h]
+- Write unit and integration tests [1.5h]
+- Pass unit and integration tests[1.5h]
+
+Backend:
 - Profile management API [2h]
 - Image storage service integration [1.5h]
-- Testing:
-  - Unit tests for services [0.5h]
-  - API integration tests [0.5h]
+- Write Unit tests for services [0.5h]
+- Pass Unit tests for services [1h]
+- Write API integration tests [0.5h]
+- Pass API integration tests [1h]
 
 # Epic 2: Schedule & Preferences Management [Total: 32 hours]
 
