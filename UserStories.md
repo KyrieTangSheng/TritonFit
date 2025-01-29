@@ -1,10 +1,9 @@
 # Epic 1: User Authentication & Profile Setup (Login Screen, SignUp Screen)
 
 ## User Stories 
-```Login Screen```
+```Front, Preference, Login Screens```
 - As a new user, I want to create an account using my UserName/StudentId email so I can access the app
 - As a user, I want to log in securely to access my personal information
-```SignUp Screen```
 - As a user, I want to create my fitness profile including:
   - Basic information (name, age, gender)
   - Fitness level (beginner/intermediate/advanced) 
