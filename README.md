@@ -25,6 +25,7 @@ TritonFit: Fitness Connection & Workout Planning App
 3. **Start the services:**
     ## Backend
     ```bash
+    docker-compose build --no-cache
     docker-compose up -d
     ```
     ## Frontend
@@ -36,7 +37,7 @@ TritonFit: Fitness Connection & Workout Planning App
     docker-compose down
     docker-compose up -d
     ```
-    
+
 ### Accessing Services
 1. **FastAPI Backend**
     - API Server: http://localhost:8000
