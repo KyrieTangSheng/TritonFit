@@ -37,6 +37,26 @@ TritonFit: Fitness Connection & Workout Planning App
     docker-compose down
     docker-compose up -d
     ```
+    ## Frontend
+    ```
+    wait for frontend team to fill this out
+    ```
+
+5. **Run tests:**
+    ## Backend
+    ```bash
+    docker-compose run --rm test
+    ```
+    ## Frontend
+    ```
+    wait for frontend team to fill this out
+    ```
+
+6. **Reset the database:**
+    ```bash
+    cd backend
+    python scripts/reset_db.py
+    ```
 
 ### Accessing Services
 1. **FastAPI Backend**
