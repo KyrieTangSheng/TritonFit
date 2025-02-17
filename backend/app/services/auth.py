@@ -3,8 +3,7 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from ..core.config import settings
-from ..models.user import UserInDB, UserCreate, Profile
-from bson import ObjectId
+from ..models.user import UserInDB, UserCreate, ProfileInDB
 from ..db.mongodb import get_database
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -46,22 +45,21 @@ class AuthService:
         if await db.users.find_one({"username": user_create.username}):
             raise ValueError("Username already registered")
         
-        # Create user
-        user_dict = user_create.dict(exclude={'profile'})
-        hashed_password = self.get_password_hash(user_dict["password"])
+        # Create user with hashed password
+        user_dict = user_create.dict(exclude={'profile', 'password'})
+        hashed_password = self.get_password_hash(user_create.password)
         user_db = UserInDB(
-            username=user_dict["username"],
-            email=user_dict["email"],
-            hashed_password=hashed_password
+            **user_dict,
+            hashed_password=hashed_password,
         )
         
         # Insert user
         result = await db.users.insert_one(user_db.dict(by_alias=True))
         user_db.id = result.inserted_id
         
-        # Create profile with user ID
+        # Create profile
         profile_data = user_create.profile.dict()
-        profile = Profile(
+        profile = ProfileInDB(
             user_id=result.inserted_id,
             **profile_data
         )
