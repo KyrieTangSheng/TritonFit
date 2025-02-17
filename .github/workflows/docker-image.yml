@@ -26,5 +26,5 @@ jobs:
         ALGORITHM: HS256
         ACCESS_TOKEN_EXPIRE_MINUTES: 30
       run: |
-        docker-compose build
-        docker-compose run --rm test 
+        docker compose build
+        docker compose run --rm test 
