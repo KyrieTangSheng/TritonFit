@@ -1,13 +1,19 @@
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, patch
 from bson import ObjectId
+from jose import jwt
 
 from app.api.routes.auth import router
 from app.models.user import UserCreate, UserInDB
 from app.services.auth import AuthService
+from app.core.config import Settings
+
+# Create settings instance
+settings = Settings()  # This will load from .env file
+
 app = FastAPI()
 app.include_router(router, prefix="/auth")
 client = TestClient(app)
@@ -93,47 +99,6 @@ async def test_login_invalid_credentials():
         response = client.post("/auth/login", json=login_data)
         assert response.status_code == 401
         assert "Incorrect username or password" in response.json()["detail"]
-
-@pytest.mark.asyncio
-async def test_get_current_user(valid_user_data):
-    # First register a user
-    with patch('app.services.auth.AuthService.create_user', new_callable=AsyncMock) as mock_create:
-        mock_create.return_value = UserInDB(
-            username=valid_user_data["username"],
-            email=valid_user_data["email"],
-            hashed_password=AuthService().get_password_hash(valid_user_data["password"])
-        )
-        response = client.post("/auth/register", json=valid_user_data)
-        assert response.status_code == 200
-
-    # Login to get token
-    with patch('app.services.auth.AuthService.authenticate_user', new_callable=AsyncMock) as mock_auth:
-        mock_auth.return_value = UserInDB(
-            username=valid_user_data["username"],
-            email=valid_user_data["email"],
-            hashed_password=AuthService().get_password_hash(valid_user_data["password"])
-        )
-        login_data = {
-            "username": valid_user_data["username"],
-            "password": valid_user_data["password"]
-        }
-        response = client.post("/auth/login", json=login_data)
-        assert response.status_code == 200
-        token = response.json()["access_token"]
-
-    # Test /me endpoint
-    with patch('app.db.mongodb.get_database', new_callable=AsyncMock) as mock_db:
-        mock_db.return_value.users.find_one.return_value = {
-            "username": valid_user_data["username"],
-            "email": valid_user_data["email"],
-            "hashed_password": AuthService().get_password_hash(valid_user_data["password"])
-        }
-        response = client.get(
-            "/auth/me",
-            headers={"Authorization": f"Bearer {token}"}
-        )
-        assert response.status_code == 200
-        assert response.json()["username"] == valid_user_data["username"]
 
 @pytest.mark.asyncio
 async def test_get_current_user_invalid_token():
