@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 const App = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>TritonFit</Text>
+      <Text stylcd e={styles.title}>TritonFit</Text>
 
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Sign In</Text>
