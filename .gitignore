@@ -2,22 +2,33 @@
 node_modules/
 .expo/
 dist/
-npm-debug.*
+web-build/
+.DS_Store
+*.pem
 *.jks
 *.p8
 *.p12
 *.key
+*.keystore
 *.mobileprovision
 *.orig.*
-web-build/
-.DS_Store
-*.pem
+.ios/
+.android/
+coverage/
+
+# iOS
+ios/Pods/
+
+# Android
+android/.gradle/
+android/app/build/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*.iml
 
 # Python
 __pycache__/
