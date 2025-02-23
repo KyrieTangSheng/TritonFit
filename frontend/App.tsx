@@ -1,5 +1,6 @@
+// App.tsx
 import React, { useState } from 'react';
-import { SafeAreaView, View, StyleSheet } from 'react-native';
+import { SafeAreaView, View, StyleSheet, Button } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 // Import Screens
@@ -8,7 +9,8 @@ import CalendarScreen from './screens/CalendarScreen';
 import GymPlanScreen from './screens/GymPlanScreen';
 import SocialScreen from './screens/SocialScreen';
 import LoginScreen from './screens/LoginScreen';
-import PreferencesScreen from './screens/PreferencesScreen'; // Ensure this import is correct
+import PreferencesScreen from './screens/PreferencesScreen'; 
+import ProfileScreen from './screens/ProfileScreen'; 
 
 // Import Components
 import Header from './components/Header';
@@ -16,7 +18,7 @@ import Footer from './components/Footer';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Home');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const renderScreen = () => {
     if (!isLoggedIn) {
@@ -30,9 +32,11 @@ export default function App() {
       case 'GymPlan':
         return <GymPlanScreen />;
       case 'Social':
-        return <SocialScreen />;
-      case 'Preferences': // Add this case to render PreferencesScreen
+        return <SocialScreen setCurrentScreen={setCurrentScreen} />;
+      case 'Preferences':
         return <PreferencesScreen />;
+      case 'Profile': // Add the Profile case here
+        return <ProfileScreen />;
       default:
         return <HomeScreen />;
     }
