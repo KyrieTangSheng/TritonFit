@@ -1,10 +1,13 @@
+// screens/SocialScreen.tsx
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet } from "react-native";
 
-export default function SocialScreen() {
+export default function SocialScreen({ setCurrentScreen }: any) {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Welcome to the social Screen!</Text>
+      <Text style={styles.text}>Welcome to the Social Screen!</Text>
+      {/* Button to navigate to ProfileScreen */}
+      <Button title="Go to Profile" onPress={() => setCurrentScreen('Profile')} />
     </View>
   );
 }
