@@ -22,7 +22,6 @@ Creates a new user account with profile information.
     "workout_location": "string (Home, Main, Rimac)",
     "workout_categories": ["string (Strength, Cardio, Stretching)"],
     "workout_types": ["string (Core, Chest, Back, Arms, Legs)"],
-    "schedule": [] // Please just give an empty array when user signs up
   }
 }
 ```
