@@ -84,7 +84,6 @@ class ProfileBase(BaseModel):
     workout_location: str = Field(enum=["Home", "Main", "Rimac"])
     workout_categories: List[str] = Field(enum=["Strength", "Cardio", "Stretching"])
     workout_types: List[str] = Field(enum=["Core", "Chest", "Back", "Arms", "Legs"])
-    schedule: List[ScheduleSlot]
 
 class ProfileCreate(ProfileBase):
     pass
