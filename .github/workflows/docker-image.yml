@@ -17,7 +17,7 @@ jobs:
       working-directory: ./backend
       run: docker build . --file Dockerfile --tag tritonfit-backend:$(date +%s)
 
-    - name: Run Tests in Docker
+    - name: Run Tests with Coverage
       working-directory: ./backend
       env:
         MONGODB_URL: mongodb://mongodb:27017
@@ -27,4 +27,4 @@ jobs:
         ACCESS_TOKEN_EXPIRE_MINUTES: 30
       run: |
         docker compose build
-        docker compose run --rm test 
+        docker compose run --rm test pytest tests/ -v --cov=app --cov-report=term-missing 

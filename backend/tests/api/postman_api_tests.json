@@ -1,0 +1,171 @@
+{
+    "info": {
+      "_postman_id": "tritonfit-api-collection",
+      "name": "TritonFit API",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Authentication",
+        "item": [
+          {
+            "name": "Register User",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    var requestBody = JSON.parse(pm.request.body.raw);",
+                    "    pm.environment.set(\"username\", requestBody.username);",
+                    "    pm.environment.set(\"password\", requestBody.password);",
+                    "}"
+                  ]
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@example.com\",\n    \"password\": \"testpassword123\",\n    \"profile\": {\n        \"dob\": \"01/01/2000\",\n        \"gender\": \"Male\",\n        \"fitness_level\": 1,\n        \"height\": 70,\n        \"weight\": 150,\n        \"workout_location\": \"Rimac\",\n        \"workout_categories\": [\"Strength\"],\n        \"workout_types\": [\"Core\"]\n    }\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/auth/register",
+                "host": ["{{base_url}}"],
+                "path": ["auth", "register"]
+              }
+            }
+          },
+          {
+            "name": "Login",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.environment.set(\"access_token\", jsonData.access_token);",
+                    "    pm.environment.set(\"token_type\", jsonData.token_type);",
+                    "}"
+                  ]
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["auth", "login"]
+              }
+            }
+          },
+          {
+            "name": "Get Current User",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "{{token_type}} {{access_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/auth/me",
+                "host": ["{{base_url}}"],
+                "path": ["auth", "me"]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Schedule",
+        "item": [
+          {
+            "name": "Get User Schedule",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "{{token_type}} {{access_token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/users/schedule",
+                "host": ["{{base_url}}"],
+                "path": ["users", "schedule"]
+              }
+            }
+          },
+          {
+            "name": "Update User Schedule",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "{{token_type}} {{access_token}}"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"weekly_slots\": [\n        {\n            \"day_of_week\": 1,\n            \"start_time\": \"10:00:00\",\n            \"end_time\": \"11:00:00\"\n        },\n        {\n            \"day_of_week\": 3,\n            \"start_time\": \"14:00:00\",\n            \"end_time\": \"15:00:00\"\n        }\n    ]\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/users/schedule",
+                "host": ["{{base_url}}"],
+                "path": ["users", "schedule"]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// Helper function to format times",
+            "function formatTime(hours, minutes) {",
+            "    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;",
+            "}"
+          ]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8000",
+        "type": "string"
+      }
+    ]
+  }
