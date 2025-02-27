@@ -7,6 +7,7 @@ from ...core.config import settings
 from jose import JWTError, jwt
 from ...db.mongodb import get_database
 from pydantic import BaseModel
+from ...core.auth import get_current_user
 
 router = APIRouter()
 security = HTTPBearer()
@@ -42,17 +43,5 @@ async def login(login_data: LoginRequest):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me")
-async def read_users_me(token: str = Depends(security)):
-    try:
-        payload = jwt.decode(token.credentials, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    
-    db = await get_database()
-    user = await db.users.find_one({"username": username})
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return UserInDB(**user) 
+async def read_users_me(current_user: UserInDB = Depends(get_current_user)):
+    return current_user 

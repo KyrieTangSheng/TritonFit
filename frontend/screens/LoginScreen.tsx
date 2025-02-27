@@ -1,38 +1,35 @@
 // screens/LoginScreen.tsx
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Button, StyleSheet, TextInput } from "react-native";
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../App.tsx';
 
-const LoginScreen = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+interface LoginScreenProps {
+  setIsLoggedIn: (loggedIn: boolean) => void;
+  setCurrentScreen: (screen: string) => void; 
+}
+
+const LoginScreen = ({ setIsLoggedIn, setCurrentScreen }: LoginScreenProps) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setCurrentScreen('Social');
+  };
   
   return (
-    <View style={styles.container}>
-      <View style={styles.login}>
-        <Text style={styles.textInputLabel}>Username</Text>
-        <TextInput style={styles.textInput}></TextInput>
+    <View style={styles.login}>
+      <Text style={styles.textInputLabel}>Username</Text>
+      <TextInput style={styles.textInput}></TextInput>
 
-        <Text style={styles.textInputLabel}>Password</Text>
-        <TextInput style={styles.textInput} secureTextEntry={true}></TextInput>
+      <Text style={styles.textInputLabel}>Password</Text>
+      <TextInput style={styles.textInput} secureTextEntry={true}></TextInput>
 
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Social')}>
-          <Text style={styles.buttonText}>Sign in</Text>
-        </TouchableOpacity>
-      </View>
-    </View>    
+      <Button title="Login" onPress={handleLogin} color="#FFCD00" />
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#182B49',
-    paddingBottom: 40,
-  },
   title: {
     fontSize: 48,
     fontWeight: 'bold',

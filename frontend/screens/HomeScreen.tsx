@@ -1,18 +1,14 @@
 // screens/HomeScreen.tsx
 import React from "react";
 import { View, Text, TouchableOpacity, Button, StyleSheet } from "react-native";
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../App.tsx';
 
 const HomeScreen = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>TritonFit</Text>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+      <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
 

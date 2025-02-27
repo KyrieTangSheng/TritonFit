@@ -1,0 +1,11 @@
+{
+    "name": "Tom",
+    "email": "Tom@ucsd.edu",
+    "preferences": [
+      { "id": 1, "title": "Preferred Gym", "details": "RIMAC" },
+      { "id": 2, "title": "Schedule", "details": "5:30pm - 6:30pm Today (Running)" },
+      { "id": 3, "title": "Fitness Goals", "details": ["Lose Weight", "Stress Relief"] },
+      { "id": 4, "title": "Preferred Equipment", "details": ["Stationary Bike", "Treadmill", "Kettlebells"] }
+    ]
+  }
+  
