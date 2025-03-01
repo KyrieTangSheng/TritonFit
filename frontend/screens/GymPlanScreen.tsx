@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+// npm i react-native-progress-step-bar --save
 import ProgressBar from "react-native-progress-step-bar";
 
 export default function GymPlanScreen()  {
