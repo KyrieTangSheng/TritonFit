@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+// npm install react-native-input-select
 import Dropdown from 'react-native-input-select';
 
 export default function PreferencesScreen() {
