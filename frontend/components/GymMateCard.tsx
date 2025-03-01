@@ -6,16 +6,21 @@ type GymMateCardProps = {
   name: string;
   location: string;
   activities: string[];
+  setCurrentScreen: any;
 };
 
 const GymMateCard = (props: GymMateCardProps) => {
+  const handleClick = () => {
+    props.setCurrentScreen("Profile");
+  };
+
   return (
     <View style={styles.gymMateCard}>
-      <Text>{props.name}</Text>
-      <Text>{props.location}</Text>
+      <Text style={styles.name} onPress={handleClick}>{props.name}</Text>
+      <Text style={styles.text}>{props.location}</Text>
       <View>
         {props.activities.map((activity, index) => (
-          <Text key={index}>• {activity}</Text>
+          <Text key={index} style={styles.text}>• {activity}</Text>
         ))}
       </View>
     </View>
@@ -24,12 +29,19 @@ const GymMateCard = (props: GymMateCardProps) => {
 
 const styles = StyleSheet.create({
   gymMateCard: {
-    
-    paddingBottom: 14,
+    backgroundColor: '#00629B',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 12,
   },
   text: {
     color: 'white',
   },
+  name: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  }
 })
 
 export default GymMateCard;
