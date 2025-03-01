@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "e6d54caa-230c-4a16-95c4-bd126001cfeb",
+		"_postman_id": "ccf1c572-37da-4b0f-b9d9-137ad8b5c8c2",
 		"name": "TritonFit API Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "39858592"
@@ -314,6 +314,410 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "Workout Plans",
+			"item": [
+				{
+					"name": "Create Workout Plan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has valid workout plan structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('user_id');",
+									"    pm.expect(jsonData).to.have.property('days');",
+									"    pm.expect(jsonData).to.have.property('created_at');",
+									"    pm.expect(jsonData).to.have.property('updated_at');",
+									"    pm.expect(jsonData.version).to.equal(1);",
+									"    pm.expect(jsonData.status).to.equal('active');",
+									"    pm.expect(jsonData.feedback_history).to.be.an('array');",
+									"",
+									"    // Validate days structure",
+									"    pm.expect(jsonData.days).to.be.an('object');",
+									"    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(function(day) {",
+									"        pm.expect(jsonData.days).to.have.property(day);",
+									"        pm.expect(jsonData.days[day]).to.have.property('workout_items');",
+									"        pm.expect(jsonData.days[day]).to.have.property('location');",
+									"        pm.expect(jsonData.days[day]).to.have.property('time');",
+									"    });",
+									"",
+									"    // Save plan ID for other requests",
+									"    pm.environment.set(\"workout_plan_id\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_type}} {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/workout-plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workout-plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Workout Plan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has valid workout plan data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.environment.get(\"workout_plan_id\"));",
+									"    pm.expect(jsonData).to.have.property('days');",
+									"    pm.expect(Object.keys(jsonData.days)).to.have.lengthOf(7);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/workout-plans/{{workout_plan_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workout-plans",
+								"{{workout_plan_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Today's Workout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has valid today's workout structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('plan_id');",
+									"    pm.expect(jsonData).to.have.property('day');",
+									"    pm.expect(jsonData).to.have.property('workout');",
+									"",
+									"    // Validate workout structure",
+									"    var workout = jsonData.workout;",
+									"    pm.expect(workout).to.have.property('workout_items').that.is.an('array');",
+									"    pm.expect(workout).to.have.property('location').that.is.a('string');",
+									"    pm.expect(workout).to.have.property('time').that.is.a('string');",
+									"",
+									"    // If there are workout items, validate their structure",
+									"    if (workout.workout_items.length > 0) {",
+									"        workout.workout_items.forEach(function(item) {",
+									"            pm.expect(item).to.have.property('type');",
+									"            pm.expect(item).to.have.property('duration');",
+									"            pm.expect(item).to.have.property('exercises').that.is.an('array');",
+									"        });",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_type}} {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/workout-plans/today",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workout-plans",
+								"today"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Provide Feedback",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Plan is updated with feedback\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.environment.get(\"workout_plan_id\"));",
+									"    pm.expect(jsonData.version).to.be.above(1);",
+									"    ",
+									"    // Validate feedback history",
+									"    pm.expect(jsonData.feedback_history).to.be.an('array').that.is.not.empty;",
+									"    var lastFeedback = jsonData.feedback_history[jsonData.feedback_history.length - 1];",
+									"    pm.expect(lastFeedback).to.have.property('feedback');",
+									"    pm.expect(lastFeedback).to.have.property('timestamp');",
+									"",
+									"    // Validate updated workout structure",
+									"    pm.expect(jsonData.days).to.be.an('object').that.has.all.keys(",
+									"        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'",
+									"    );",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_type}} {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"feedback\": \"Please make the exercises more challenging and add more cardio.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workout-plans/{{workout_plan_id}}/feedback",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workout-plans",
+								"{{workout_plan_id}}",
+								"feedback"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Entire Workout Plan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Plan is successfully updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.environment.get(\"workout_plan_id\"));",
+									"    pm.expect(jsonData.version).to.be.above(1);",
+									"    pm.expect(jsonData.days).to.be.an('object').that.has.all.keys(",
+									"        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'",
+									"    );",
+									"    pm.expect(jsonData.days.Monday.workout_items).to.be.an('array');",
+									"    pm.expect(jsonData.days.Monday.location).to.equal(\"Home\");",
+									"    pm.expect(jsonData.days.Monday.time).to.equal(\"6:00-6:45AM\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_type}} {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"{{workout_plan_id}}\",\n    \"user_id\": \"{{user_id}}\",\n    \"status\": \"active\",\n    \"days\": {\n        \"Monday\": {\n            \"workout_items\": [\n                {\n                    \"type\": \"strength\",\n                    \"duration\": \"45 min\",\n                    \"exercises\": [\n                        {\n                            \"name\": \"Push-ups\",\n                            \"sets\": 3,\n                            \"reps_per_set\": 15,\n                            \"rest_between_sets\": \"60 sec\",\n                            \"equipment\": [\"none\"],\n                            \"difficulty\": \"intermediate\",\n                            \"notes\": \"Focus on form\"\n                        },\n                        {\n                            \"name\": \"Pull-ups\",\n                            \"sets\": 3,\n                            \"reps_per_set\": 10,\n                            \"rest_between_sets\": \"60 sec\",\n                            \"equipment\": [\"pull-up bar\"],\n                            \"difficulty\": \"intermediate\",\n                            \"notes\": \"Use assistance band if needed\"\n                        }\n                    ]\n                }\n            ],\n            \"location\": \"Home\",\n            \"time\": \"6:00-6:45AM\"\n        },\n        \"Tuesday\": {\n            \"workout_items\": [\n                {\n                    \"type\": \"cardio\",\n                    \"duration\": \"30 min\",\n                    \"exercises\": [\n                        {\n                            \"name\": \"Jogging\",\n                            \"sets\": 1,\n                            \"reps_per_set\": 1,\n                            \"rest_between_sets\": \"0 sec\",\n                            \"equipment\": [\"none\"],\n                            \"difficulty\": \"intermediate\",\n                            \"notes\": \"Steady pace\"\n                        }\n                    ]\n                }\n            ],\n            \"location\": \"Outdoor\",\n            \"time\": \"7:00-7:30AM\"\n        },\n        \"Wednesday\": {\n            \"workout_items\": [],\n            \"location\": \"Rest day\",\n            \"time\": \"N/A\"\n        },\n        \"Thursday\": {\n            \"workout_items\": [\n                {\n                    \"type\": \"strength\",\n                    \"duration\": \"45 min\",\n                    \"exercises\": [\n                        {\n                            \"name\": \"Squats\",\n                            \"sets\": 3,\n                            \"reps_per_set\": 15,\n                            \"rest_between_sets\": \"60 sec\",\n                            \"equipment\": [\"none\"],\n                            \"difficulty\": \"intermediate\",\n                            \"notes\": \"Focus on form\"\n                        },\n                        {\n                            \"name\": \"Lunges\",\n                            \"sets\": 3,\n                            \"reps_per_set\": 10,\n                            \"rest_between_sets\": \"60 sec\",\n                            \"equipment\": [\"none\"],\n                            \"difficulty\": \"intermediate\",\n                            \"notes\": \"Each leg\"\n                        }\n                    ]\n                }\n            ],\n            \"location\": \"Home\",\n            \"time\": \"6:00-6:45AM\"\n        },\n        \"Friday\": {\n            \"workout_items\": [\n                {\n                    \"type\": \"cardio\",\n                    \"duration\": \"30 min\",\n                    \"exercises\": [\n                        {\n                            \"name\": \"Jump rope\",\n                            \"sets\": 3,\n                            \"reps_per_set\": 100,\n                            \"rest_between_sets\": \"30 sec\",\n                            \"equipment\": [\"jump rope\"],\n                            \"difficulty\": \"intermediate\",\n                            \"notes\": \"Focus on rhythm\"\n                        }\n                    ]\n                }\n            ],\n            \"location\": \"Home\",\n            \"time\": \"7:00-7:30AM\"\n        },\n        \"Saturday\": {\n            \"workout_items\": [\n                {\n                    \"type\": \"flexibility\",\n                    \"duration\": \"30 min\",\n                    \"exercises\": [\n                        {\n                            \"name\": \"Yoga\",\n                            \"sets\": 1,\n                            \"reps_per_set\": 1,\n                            \"rest_between_sets\": \"0 sec\",\n                            \"equipment\": [\"yoga mat\"],\n                            \"difficulty\": \"beginner\",\n                            \"notes\": \"Follow video\"\n                        }\n                    ]\n                }\n            ],\n            \"location\": \"Home\",\n            \"time\": \"8:00-8:30AM\"\n        },\n        \"Sunday\": {\n            \"workout_items\": [],\n            \"location\": \"Rest day\",\n            \"time\": \"N/A\"\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workout-plans/{{workout_plan_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workout-plans",
+								"{{workout_plan_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Specific Day",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Specific day is updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.environment.get(\"workout_plan_id\"));",
+									"    pm.expect(jsonData.version).to.be.above(1);",
+									"    ",
+									"    // Validate the updated Monday workout",
+									"    pm.expect(jsonData.days.Monday).to.have.property('workout_items').that.is.an('array');",
+									"    pm.expect(jsonData.days.Monday.workout_items).to.have.lengthOf(1);",
+									"    pm.expect(jsonData.days.Monday.workout_items[0].type).to.equal('cardio');",
+									"    pm.expect(jsonData.days.Monday.location).to.equal('Park');",
+									"    pm.expect(jsonData.days.Monday.time).to.equal('7:00-8:00AM');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_type}} {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"workout_items\": [\n        {\n            \"type\": \"cardio\",\n            \"duration\": \"60 min\",\n            \"exercises\": [\n                {\n                    \"name\": \"Running intervals\",\n                    \"sets\": 5,\n                    \"reps_per_set\": 1,\n                    \"rest_between_sets\": \"60 sec\",\n                    \"equipment\": [\"none\"],\n                    \"difficulty\": \"advanced\",\n                    \"notes\": \"400m sprint followed by 2 min rest\"\n                }\n            ]\n        }\n    ],\n    \"location\": \"Park\",\n    \"time\": \"7:00-8:00AM\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workout-plans/{{workout_plan_id}}/days/Monday",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workout-plans",
+								"{{workout_plan_id}}",
+								"days",
+								"Monday"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Specific Workout Item",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Specific workout item is updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.environment.get(\"workout_plan_id\"));",
+									"    pm.expect(jsonData.version).to.be.above(1);",
+									"    ",
+									"    // Verify the updated workout item",
+									"    var mondayWorkout = jsonData.days.Monday.workout_items[0];",
+									"    pm.expect(mondayWorkout.type).to.equal('strength');",
+									"    pm.expect(mondayWorkout.duration).to.equal('45 min');",
+									"    pm.expect(mondayWorkout.exercises).to.be.an('array').that.has.lengthOf(2);",
+									"    pm.expect(mondayWorkout.exercises[0].name).to.equal('Weighted squats');",
+									"    pm.expect(mondayWorkout.exercises[0].equipment).to.include('dumbbells');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_type}} {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"strength\",\n    \"duration\": \"45 min\",\n    \"exercises\": [\n        {\n            \"name\": \"Weighted squats\",\n            \"sets\": 4,\n            \"reps_per_set\": 12,\n            \"rest_between_sets\": \"90 sec\",\n            \"equipment\": [\"dumbbells\"],\n            \"difficulty\": \"advanced\",\n            \"notes\": \"Use heavier weights than last time\"\n        },\n        {\n            \"name\": \"Deadlifts\",\n            \"sets\": 4,\n            \"reps_per_set\": 10,\n            \"rest_between_sets\": \"90 sec\",\n            \"equipment\": [\"barbell\"],\n            \"difficulty\": \"advanced\",\n            \"notes\": \"Focus on form\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workout-plans/{{workout_plan_id}}/days/Monday/items/0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workout-plans",
+								"{{workout_plan_id}}",
+								"days",
+								"Monday",
+								"items",
+								"0"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -327,11 +731,7 @@
 					"    let date = new Date();",
 					"    date.setHours(date.getHours() + addHours);",
 					"    return date.toISOString();",
-					"}",
-					"",
-					"// Set dynamic timestamps for schedule",
-					"pm.environment.set('$isoTimestamp', getISODateTime());",
-					"pm.environment.set('$isoTimestampPlusHour', getISODateTime(1));"
+					"}"
 				]
 			}
 		}
