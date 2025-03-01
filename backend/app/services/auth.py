@@ -5,6 +5,7 @@ from passlib.context import CryptContext
 from ..core.config import settings
 from ..models.user import UserInDB, UserCreate, ProfileInDB
 from ..db.mongodb import get_database
+from ..models.schedule import Schedule
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -64,5 +65,9 @@ class AuthService:
             **profile_data
         )
         await db.profiles.insert_one(profile.dict(by_alias=True))
+        
+        # Create empty schedule
+        schedule = Schedule(user_id=result.inserted_id)
+        await db.schedules.insert_one(schedule.dict(by_alias=True))
         
         return user_db 

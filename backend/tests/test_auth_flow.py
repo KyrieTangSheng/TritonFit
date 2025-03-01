@@ -29,12 +29,7 @@ def valid_profile_data():
         "workout_location": "Rimac",
         "workout_categories": ["Strength"],
         "workout_types": ["Core"],
-        "schedule": [
-            {
-                "start_datetime": "2024-01-01T09:00:00",
-                "end_datetime": "2024-01-01T09:45:00"
-            }
-        ]
+        "schedule":[]
     }
 
 @pytest.fixture

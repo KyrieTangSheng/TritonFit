@@ -1,74 +1,59 @@
-// screens/LoginScreen.tsx
-import React from "react";
-import { View, Text, TouchableOpacity, Button, StyleSheet, TextInput } from "react-native";
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../App.tsx';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 
-const LoginScreen = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  
+interface LoginScreenProps {
+  setIsLoggedIn: (loggedIn: boolean) => void;
+  setCurrentScreen: (screen: string) => void; 
+}
+
+export default function LoginScreen({ setIsLoggedIn, setCurrentScreen }: LoginScreenProps) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+      setIsLoggedIn(true);
+      setCurrentScreen('Home');
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.login}>
-        <Text style={styles.textInputLabel}>Username</Text>
-        <TextInput style={styles.textInput}></TextInput>
+      <Text style={styles.title}>Login to TritonFit</Text>
 
-        <Text style={styles.textInputLabel}>Password</Text>
-        <TextInput style={styles.textInput} secureTextEntry={true}></TextInput>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#ccc"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
 
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Social')}>
-          <Text style={styles.buttonText}>Sign in</Text>
-        </TouchableOpacity>
-      </View>
-    </View>    
-  )
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        placeholderTextColor="#ccc"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <Button title="Login" onPress={handleLogin} color="#FFCD00" />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#182B49',
-    paddingBottom: 40,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: 'white',
-  },
-  button: {
-    backgroundColor: '#C69214',
-    paddingTop: 8,
-    paddingRight: 10,
-    paddingBottom: 8,
-    paddingLeft: 10,
-    borderRadius: 8,
-    marginBottom: 30, // Adds spacing between buttons
-    width: 190,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  textInputLabel: {
-    color: 'white',
-    alignSelf: 'flex-start',
-    fontSize: 16,
-  },
-  textInput: {
-    color: 'white',
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#00629B' },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#FFCD00', marginBottom: 20 },
+  input: {
+    width: '80%',
+    padding: 10,
+    marginBottom: 10,
     borderWidth: 1,
-    borderColor: 'white',
+    borderColor: '#FFCD00',
     borderRadius: 5,
+    color: '#FFF',
+    backgroundColor: '#004B76',
   },
-  login: {
-    width: 190,
-  }
 });
-
-export default LoginScreen;
