@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .db.mongodb import connect_to_mongo, close_mongo_connection
-from .api.routes import auth, schedule, profile
+from .api.routes import auth, schedule, profile, workout
 
 app = FastAPI()
 
@@ -27,6 +27,7 @@ async def shutdown_db_client():
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(schedule.router, prefix="/users", tags=["users"])
 app.include_router(profile.router, prefix="/users", tags=["users"])
+app.include_router(workout.router, prefix="/workout-plans", tags=["workout-plans"])
 
 @app.get("/")
 async def root():
