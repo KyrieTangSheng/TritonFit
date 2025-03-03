@@ -4,6 +4,7 @@ import { SafeAreaView, View, StyleSheet, Button } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 // Import Screens
+import FrontScreen from './screens/FrontScreen';
 import HomeScreen from './screens/HomeScreen';
 import CalendarScreen from './screens/CalendarScreen';
 import GymPlanScreen from './screens/GymPlanScreen';
@@ -22,11 +23,18 @@ export default function App() {
 
   const renderScreen = () => {
     if (!isLoggedIn) {
-      return <LoginScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
+      switch (currentScreen) {
+        case 'Login':
+          return <LoginScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
+        case 'Preferences':
+          return <PreferencesScreen setCurrentScreen={setCurrentScreen} />;
+        default:
+          return <FrontScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
+      }
     }
     switch (currentScreen) {
       case 'Home':
-        return <HomeScreen />;
+        return <HomeScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
       case 'Calendar':
         return <CalendarScreen />;
       case 'GymPlan':
@@ -38,7 +46,7 @@ export default function App() {
       case 'Profile': // Add the Profile case here
         return <ProfileScreen />;
       default:
-        return <HomeScreen />;
+        return <HomeScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
     }
   };
 
