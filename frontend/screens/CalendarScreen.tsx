@@ -1,77 +1,70 @@
 import React from 'react';
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {StyleSheet, Text, View, ScrollView, TouchableOpacity, Pressable} from 'react-native';
+import { schedCalls } from './scheduleCalls';
+import { ScheduleEvent, WeeklySlot } from  './sched_src/schedEvent';
 
 export default function ScheduleScreen() {
-  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-  // TODO: getSchedule() from DB
-  const scheduledTimes = [
-    { start_datetime: "2025-02-17T00:15:00", end_datetime: "2025-02-17T3:30:00" },
-    { start_datetime: "2025-02-19T11:15:00", end_datetime: "2025-02-19T13:00:00" },
-    { start_datetime: "2025-02-19T15:30:00", end_datetime: "2025-02-19T17:00:00" }
-  ];
+  // CREATE HOOKS (monitoring states)
+  const [scheduledTimes, setScheduledEvent] = useState<ScheduleEvent | null>(null); // fetched data
+  const [isLoading, setIsLoading] = useState(true); // loading screen
+  const [highlightedSlots, setHighlightedSlots] = useState<Record<number, Set<string>>>({}); // display data 
+  const highlightRef = useRef(highlightedSlots); // final state of the display
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']; 
 
-  // handles if user didn't previously highlight anything 
-  if (scheduledTimes.length == 0) {
-    scheduledTimes.concat([{ start_datetime: "", end_datetime: "" }])
-  }
 
-  // TODO: user holds and drags to highlight
-
-  
-  // Received times -> highlighted boxes
-  const highlightedSlots: Record<number, Set<string>> = {}; //ensures casting with proper type
-  let newSlots: Record<number, Set<string>> = {}; // the new version to be sent to DB
-  
-  let minHour = 24
-  let maxHour = 0
-
-  scheduledTimes.forEach(({ start_datetime, end_datetime }) => {
-    const startDate = new Date(start_datetime);
-    const endDate = new Date(end_datetime);
-    
-    const day = startDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const startHour = startDate.getHours();
-    const startMins = startDate.getMinutes();
-    const endHour = endDate.getHours();
-    const endMins = endDate.getMinutes();
-
-    // for how much of calendar to display
-    if (startHour < minHour) {
-      minHour = startHour
-    }
-    if (endHour > maxHour) {
-      maxHour = endHour
-    }
-    
-    // set of which days the user previously highlighted
-    if (!highlightedSlots[day]) {
-      highlightedSlots[day] = new Set();
-    }
-  
-    // fixed so start/end time is detecting the minutes too 
-    for (let hour = startHour; hour <= endHour; hour++) {
-      let minutes = 0
-      let stop = 60
-      if (hour == startHour){
-        minutes = startMins
+  // RETRIEVE DATA FROM DB
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const schedule = await schedCalls.getSchedule(); //API call
+        setScheduledEvent(schedule);
+      } catch (error) {
+        console.error('Error retrieving schedule:', error);
+      } finally {
+        setIsLoading(false);
       }
-      else if (hour == endHour){
-        stop = endMins + 15
-      }
-      while (minutes < stop){
-        const timeKey = `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-        highlightedSlots[day].add(timeKey); // time as "HH:mm"
-        minutes += 15;
-      }
-    }
-  });
+    };
+    fetchSchedule();
+  }, []);
+
+
+  // CONVERT RETRIEVED TIMES FORMAT -> HIGHLIGHTED BOXES FOR THE DISPLAY 
+  useEffect(() => {
+    if (!scheduledTimes) return;
+
+    setHighlightedSlots((prev) => {
+      const newSlots: Record<number, Set<string>> = {}; //change to {...prev}??
+
+      scheduledTimes.weekly_slots.forEach(({ day_of_week, start_time, end_time }) => {
+        
+        // if there is no data for this day, create a new set
+        if (!newSlots[day_of_week]) newSlots[day_of_week] = new Set();
+        const [startHour, startMins] = start_time.split(":").map(Number);
+        const [endHour, endMins] = end_time.split(":").map(Number);
+        
+        // record all the slots between start and stop time as highlighted
+        for (let hour = startHour; hour <= endHour; hour++) {
+          let minutes = hour === startHour ? startMins : 0;
+          const stop = hour === endHour ? endMins : 60;
+          while (minutes < stop) {
+            // each day could have multiple sets due to discontinuous scheduling
+            newSlots[day_of_week].add(`${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`);
+            minutes += 15;
+          }
+        }
+      });
+
+      // update ref
+      highlightRef.current = newSlots;
+      return newSlots;
+    });
+  }, [scheduledTimes]);
 
   
 
-
-  // calendar displays ALL hours (can change to user specified using minHour and maxHour)
+  // CREATE TIMETABLE FOR ALL HOURS BEING DISPLAYED
   let displayHours = [];
   for (let i = 0; i < 24; i++){
     //outer loop incrementing hours 
@@ -122,14 +115,97 @@ export default function ScheduleScreen() {
       let timeKey = `${String(i).padStart(2, '0')}:${String(minsNum).padStart(2, '0')}`; // 24hr key lookup
     
       displayHours.push({displayTime, timeKey})
-      // stores highlights in 24hr, timeKey matches highlights in 24hr, displays 12hr
+      // !! stores highlights in 24hr, timeKey matches highlights in 24hr, displays 12hr
     }
   }
 
+
+
+  // CONVERSION FUNCTIONS -- time string "HH:mm" to minutes since midnight, and back
+  const timeToMinutes = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
   
-   
+  const minutesToTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+  };
 
 
+
+  // CONVERT FINAL SCHEDULE TO CORRECT FORMAT FOR SENDING TO DB
+  // AKA take the last highlightedSlots state and translate into DB data
+  const genSlots = (finalSlots: Record<number, Set<string>>) => {
+    // highlightedSlots -> sendSlots
+    let sendSlots: { weekly_slots: WeeklySlot[] } = { weekly_slots: [] };
+  
+    Object.entries(finalSlots).forEach(([day, timeSet]) => {
+      // sort and figure out where to start from 
+      const dayIndex = Number(day);
+      const sortedTimes = Array.from(timeSet).sort((a, b) => a.localeCompare(b));
+      if (sortedTimes.length === 0) return; // makes sure this day has times
+  
+      let minStart = sortedTimes[0];
+      let prevTime = timeToMinutes(minStart);
+  
+      // group continuous intervals
+      for (let i = 1; i <= sortedTimes.length; i++) {
+        // handle both discontinuity and the final element
+        if (i === sortedTimes.length || timeToMinutes(sortedTimes[i]) !== prevTime + 15) {
+          // add 15 mins and convert back to string
+          const endingNum = prevTime + 15;
+          const endingStr = minutesToTime(endingNum);
+
+          // make an entry
+          sendSlots.weekly_slots.push({
+            day_of_week: dayIndex,
+            start_time: minStart + ":00",
+            end_time: endingStr + ":00",
+          });
+
+          if (i < sortedTimes.length) {
+            // discontinuous so new minStart
+            minStart = sortedTimes[i];
+          }
+        }
+        if (i < sortedTimes.length) {
+          prevTime = timeToMinutes(sortedTimes[i]);
+        }
+      }
+    });
+  
+    return sendSlots;
+  };
+  
+
+  // WHAT TO DO WHEN USER PRESSES A SLOT:
+  const handlePress = useCallback((dayIndex: number, timeKey: string) => {
+    setHighlightedSlots((prev) => {
+      const newSlots = { ...prev };
+      // if had this slot stored, delete
+      if (newSlots[dayIndex]?.has(timeKey)) {
+        newSlots[dayIndex].delete(timeKey);
+      } else {
+        // if didn't have, now do
+        if (!newSlots[dayIndex]) newSlots[dayIndex] = new Set();
+        newSlots[dayIndex].add(timeKey);
+      }
+      // store the latest value
+      highlightRef.current = newSlots;
+      return { ...newSlots };
+    });
+  }, []);
+
+
+  // Show loading state while fetching
+  if (isLoading) {
+    return <Text style={schedStyles.white}>Loading calendar...</Text>;
+  }
+
+  
+  // WHAT USER SEES:
   return (
     <View style={schedStyles.blue}>
 
@@ -143,7 +219,7 @@ export default function ScheduleScreen() {
         <View style={[schedStyles.grid, schedStyles.stone]}>
           {/* Days of the week row */}
           <View style={schedStyles.row}>
-            <Text style={[schedStyles.gridItem, schedStyles.backWhite]}></Text> {/* Top-left corner cell */}
+            <Text style={[schedStyles.gridItem, schedStyles.backWhite]}></Text>
             {days.map((day, index) => (
               <Text key={index} style={[schedStyles.gridItem, schedStyles.backWhite, schedStyles.boldText]}>
                 {day}
@@ -152,95 +228,64 @@ export default function ScheduleScreen() {
           </View>
 
           {/* Schedule rows */}
-          {displayHours.map(({displayTime, timeKey}, rowIndex) => {
-            // const hourNumber = parseInt(hour.split(":")[0]); 
-            // const minNumber  = parseInt(hour.split(":")[1]); 
-            // const timeKey = `${String(hourNumber).padStart(2, '0')}:${String(minNumber).padStart(2, '0')}`;
+          {displayHours.map(({ displayTime, timeKey }, rowIndex) => (
+            <View style={schedStyles.row} key={rowIndex}>
+              {/* Hourly label */}
+              <Text style={[schedStyles.gridItem, schedStyles.backWhite, displayTime.includes(":00") && schedStyles.boldText]}>
+                {/* equal-sized squares (adds space for AM/PM) */}
+                {displayTime.split(" ")[0]} {"\n"} {displayTime.split(" ")[1]} 
+              </Text>
 
-
-            return (
-              <View style={schedStyles.row} key={rowIndex}>
-                {/* Hourly label */}
-                <Text style={[schedStyles.gridItem, schedStyles.backWhite, displayTime.includes(":00")  && schedStyles.boldText]}>
-                  {/* adds space for AM/PM */}
-                  {displayTime.split(" ")[0]} {"\n"} {displayTime.split(" ")[1]} 
-                </Text>
-                
-
-                {/* Grid cells */}
-                {days.map((_, colIndex) => {
-                  
-                  let isHighlighted = highlightedSlots[colIndex]?.has(timeKey); // checks if this day & time is in the set
-                  
-                  // changing states: what's highlighted in display, what's in info 
-                  const [boolHighlighted, setBoolHighlighted] = useState(isHighlighted);
-                  const [highlightArray,  setHighlightArray]  = useState(highlightedSlots);
-                  
-                  // What to do when user presses grid:
-                  const handlePress = (dayIndex: number, timeKey: string) => {
-                    // clicks produce the opposite of what was
-                    if (highlightArray[dayIndex]?.has(timeKey) == true){
-                      // if had, delete
-                      highlightArray[dayIndex].delete(timeKey);
-                    }
-                    else{
-                      if (!highlightArray[dayIndex]) {
-                        // previously undefined if no slots made on that day
-                        highlightArray[dayIndex] = new Set();
-                      }
-                      // if didn't have, now do
-                      highlightArray[dayIndex].add(timeKey);
-                    }
-
-                    // highlighted boxes in display change
-                    setBoolHighlighted(!boolHighlighted);
-
-                    // the original info array (highlightedSlots) does NOT change
-                    // highlightArray is storing the new info -> sends to newSlots
-                    newSlots = highlightArray
-                  };
-                  
-                  return (
-                    // shows colors AND is pressable
-                    <Pressable 
-                      key={colIndex} 
-                      
-                      onPress={() => handlePress(colIndex, timeKey)}
-                      style={[
-                        schedStyles.gridItem, 
-                        boolHighlighted ? schedStyles.gold : schedStyles.stone
-                      ]}
-                    />
-                  );
-                })}
-              </View>
-            );
-          })}
+              {/* Grid cells */}
+              {days.map((_, colIndex) => {
+                // check if this day & time is in the set
+                const isHighlighted = highlightedSlots[colIndex]?.has(timeKey);
+                return (
+                  <Pressable 
+                    key={colIndex} 
+                    // update stored data
+                    onPress={() => handlePress(colIndex, timeKey)}
+                    // change color
+                    style={[schedStyles.gridItem, isHighlighted ? schedStyles.gold : schedStyles.stone]}
+                  />
+                );
+              })}
+            </View>
+          ))}
         </View>
       </ScrollView>
 
       {/* Preferences Button */}
       <View>
-        <TouchableOpacity style={schedStyles.button}    
-            //TODO: send newSlots to DB
-            onPress={() => {}} >
+        <TouchableOpacity 
+          style={schedStyles.button}
+          onPress={async () => {
+            // correctly format last state
+            const newSchedule = genSlots(highlightRef.current);
+
+            // send to DB
+            try {
+              await schedCalls.updateSchedule(newSchedule.weekly_slots); //API
+              console.log('Schedule updated successfully');
+            } catch (error) {
+              console.error('Error updating schedule:', error);
+            }
+          }}
+        >
           <Text style={[schedStyles.preferences, schedStyles.gold, schedStyles.white]}>Update Availability</Text>
         </TouchableOpacity>
-
       </View>
-        
-
     </View>
-    
   );
-};
+}
+
 
 
 
 const schedStyles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 25,
   },
   headerText: {
     fontWeight: 'bold',
@@ -250,8 +295,8 @@ const schedStyles = StyleSheet.create({
   button: {
     position: 'relative',
     alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 15,
+    paddingTop: 25,
+    paddingBottom: 20,
     paddingLeft: 10,
     paddingRight: 10,
   },
@@ -296,6 +341,7 @@ const schedStyles = StyleSheet.create({
     flexWrap: 'wrap',
     width: '100%',
     marginTop: 30,
+    flex: 1,
   },
   row: {
     flexDirection: 'row',
