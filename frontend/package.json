@@ -11,6 +11,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-community/datetimepicker": "github:react-native-community/datetimepicker",
+    "@react-native-picker/picker": "^2.11.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "paper": "^0.12.18",
@@ -18,6 +20,7 @@
     "react-native": "^0.77.1",
     "react-native-gesture-handler": "^2.23.1",
     "react-native-paper": "^5.13.1",
+    "react-native-progress-step-bar": "^1.0.0",
     "react-native-reanimated": "^3.16.7",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.8.0",

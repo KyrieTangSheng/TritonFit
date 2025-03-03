@@ -8,6 +8,7 @@ import FrontScreen from './screens/FrontScreen';
 import HomeScreen from './screens/HomeScreen';
 import CalendarScreen from './screens/CalendarScreen';
 import GymPlanScreen from './screens/GymPlanScreen';
+import GymPlanEditorScreen from './screens/GymPlanEditorScreen';
 import SocialScreen from './screens/SocialScreen';
 import LoginScreen from './screens/LoginScreen';
 import PreferencesScreen from './screens/PreferencesScreen'; 
@@ -38,7 +39,9 @@ export default function App() {
       case 'Calendar':
         return <CalendarScreen />;
       case 'GymPlan':
-        return <GymPlanScreen />;
+        return <GymPlanScreen setCurrentScreen={setCurrentScreen}/>;
+      case 'GymPlanEdit':
+        return <GymPlanEditorScreen setCurrentScreen={setCurrentScreen}/>;
       case 'Social':
         return <SocialScreen setCurrentScreen={setCurrentScreen} />;
       case 'Preferences':
