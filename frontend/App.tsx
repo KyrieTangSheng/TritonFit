@@ -13,6 +13,7 @@ import SocialScreen from './screens/SocialScreen';
 import LoginScreen from './screens/LoginScreen';
 import PreferencesScreen from './screens/PreferencesScreen'; 
 import ProfileScreen from './screens/ProfileScreen'; 
+import FeedBackScreen from './screens/FeedBackScreen'; 
 
 // Import Components
 import Header from './components/Header';
@@ -28,26 +29,30 @@ export default function App() {
         case 'Login':
           return <LoginScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
         case 'Preferences':
-          return <PreferencesScreen setCurrentScreen={setCurrentScreen} />;
+          return <PreferencesScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
         default:
           return <FrontScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
       }
     }
     switch (currentScreen) {
       case 'Home':
-        return <HomeScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
+        return <HomeScreen />;
       case 'Calendar':
         return <CalendarScreen />;
       case 'GymPlan':
         return <GymPlanScreen setCurrentScreen={setCurrentScreen}/>;
       case 'GymPlanEdit':
-        return <GymPlanEditorScreen setCurrentScreen={setCurrentScreen}/>;
+          return <GymPlanEditorScreen setCurrentScreen={setCurrentScreen}/>;
       case 'Social':
         return <SocialScreen setCurrentScreen={setCurrentScreen} />;
+      case 'Front':
+          return <FrontScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
       case 'Preferences':
-        return <PreferencesScreen />;
-      case 'Profile': // Add the Profile case here
-        return <ProfileScreen />;
+        return <PreferencesScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
+      case 'Profile': 
+        return <ProfileScreen setCurrentScreen={setCurrentScreen}/>;
+      case 'FeedBack': 
+        return <FeedBackScreen setCurrentScreen={setCurrentScreen}/>;
       default:
         return <HomeScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
     }

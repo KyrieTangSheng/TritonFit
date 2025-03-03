@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function HomeScreen() {
+export default function HomeScreen({ setCurrentScreen }: any) {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Welcome to the Home Screen!</Text>
@@ -14,10 +14,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#00629B",
+    paddingHorizontal: '19%', // Apply padding only to left & right
+    backgroundColor: "#182B49",
   },
   text: {
-    color: "#FFFFFF",
-    fontSize: 20,
+    color: "#FFCD00",
+    fontSize: 19,
+    textAlign: "center",
   },
 });
+
