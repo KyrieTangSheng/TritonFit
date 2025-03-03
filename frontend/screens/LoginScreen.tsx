@@ -1,27 +1,46 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import config from "../config.tsx";
+import axios from "axios";
 
 interface LoginScreenProps {
   setIsLoggedIn: (loggedIn: boolean) => void;
-  setCurrentScreen: (screen: string) => void; 
+  setCurrentScreen: (screen: string) => void;
 }
 
 export default function LoginScreen({ setIsLoggedIn, setCurrentScreen }: LoginScreenProps) {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-      setIsLoggedIn(true);
-      setCurrentScreen('Home');
+    axios.post(`${config.BASE_URL}/auth/login`, {
+      "username": username,
+      "password": password,
+    })
+      .then(response => {
+        console.log(response);
+        setIsLoggedIn(true);
+        setCurrentScreen('Home');
+      })
+      .catch(error => console.error(error));
   };
 
   return (
     <View style={styles.login}>
       <Text style={styles.textInputLabel}>Username</Text>
-      <TextInput style={styles.textInput}></TextInput>
+      <TextInput
+        style={styles.textInput}
+        onChangeText={setUsername}
+        value={username}
+      />
 
       <Text style={styles.textInputLabel}>Password</Text>
-      <TextInput style={styles.textInput} secureTextEntry={true}></TextInput>
+      <TextInput
+        style={styles.textInput}
+        secureTextEntry={true}
+        onChangeText={setPassword}
+        value={password}
+      />
 
       <Button title="Login" onPress={handleLogin} color="#FFCD00" />
     </View>
