@@ -16,27 +16,12 @@ export default function LoginScreen({ setIsLoggedIn, setCurrentScreen }: LoginSc
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login to TritonFit</Text>
+    <View style={styles.login}>
+      <Text style={styles.textInputLabel}>Username</Text>
+      <TextInput style={styles.textInput}></TextInput>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#ccc"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#ccc"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      <Text style={styles.textInputLabel}>Password</Text>
+      <TextInput style={styles.textInput} secureTextEntry={true}></TextInput>
 
       <Button title="Login" onPress={handleLogin} color="#FFCD00" />
     </View>
@@ -44,16 +29,41 @@ export default function LoginScreen({ setIsLoggedIn, setCurrentScreen }: LoginSc
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#00629B' },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#FFCD00', marginBottom: 20 },
-  input: {
-    width: '80%',
-    padding: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#FFCD00',
-    borderRadius: 5,
-    color: '#FFF',
-    backgroundColor: '#004B76',
+  title: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: 'white',
   },
+  button: {
+    backgroundColor: '#C69214',
+    paddingTop: 8,
+    paddingRight: 10,
+    paddingBottom: 8,
+    paddingLeft: 10,
+    borderRadius: 8,
+    marginBottom: 30, // Adds spacing between buttons
+    width: 190,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textInputLabel: {
+    color: 'white',
+    alignSelf: 'flex-start',
+    fontSize: 16,
+  },
+  textInput: {
+    color: 'white',
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  login: {
+    width: 190,
+  }
 });

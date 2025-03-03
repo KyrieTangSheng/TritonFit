@@ -20,6 +20,7 @@ web-build/
 *.swo
 
 # Android & iOS build files
+android
 android/.gradle/
 android/app/build/
 android/build/
@@ -83,3 +84,9 @@ yarn.lock
 data/db/
 mongod.log
 *.mongodb
+
+frontend/.bundle/
+frontend/__tests__/
+frontend/.eslintrc.js
+frontend/.prettierrc.js
+frontend/.watchmanconfig
