@@ -5,10 +5,11 @@ import { WeeklySlot, ScheduleEvent } from  './schedEvent';
 export const schedCalls = {
     async getSchedule(): Promise<ScheduleEvent> {
         try {
-            const token = await getAuthToken();
+            // const token = await getAuthToken();
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlcjMiLCJleHAiOjE3NDEwNDkzMzJ9.NrWGmw26fgb3Il_onvWfmpiQ90uGz4IAd58ggy0YyhE"
+
             if (!token) throw new Error('No authentication token');
 
-            // console.log("Calling API...");
             const response = await fetch(`${API_BASE_URL}/users/schedule`, { 
                 method: 'GET',
                 headers: {
@@ -16,29 +17,25 @@ export const schedCalls = {
                 }
             });
 
-            const responseText = await response.text();
+            const scheduleData = await response.json();
 
             if (!response.ok) {
                 if (response.status === 401) throw new Error('Authentication required');
                 else if (response.status === 404) throw new Error('User not found');
-                throw new Error(`Failed to fetch schedule: ${response.status} ${responseText}`);
+                throw new Error(`Failed to fetch schedule: ${response.status} ${scheduleData}`);
             }
-
-            const data = responseText ? JSON.parse(responseText) : {};
-
-            const emptySchedule: ScheduleEvent = {
-                _id: "new-id",  // Replace 
-                user_id: "user-id",  // Replace
-                weekly_slots: [{ day_of_week: NaN, start_time: "", end_time: "" }],  // Empty weekly slots
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+        
+            // Transform the direct API response to match frontend model
+            const scheduleEvent: ScheduleEvent = {
+                _id: scheduleData._id,
+                user_id: scheduleData.user_id,
+                weekly_slots: scheduleData.weekly_slots,
+                created_at: scheduleData.created_at,
+                updated_at: scheduleData.updated_at
             };
+            
+            return scheduleEvent;
 
-            if (data.events?.[0] == undefined) {
-                return emptySchedule
-            }
-
-            return data.events?.[0]; // Return the first event or empty schedule if empty
         } catch (error: unknown) {
             if (error instanceof Error) {
                 throw new Error(`Error fetching user schedule: ${error.message}`);
@@ -49,16 +46,20 @@ export const schedCalls = {
     },
 
     async updateSchedule(weeklySlots: WeeklySlot[]): Promise<ScheduleEvent> {
-        const token = await getAuthToken();
+        // const token = await getAuthToken();
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlcjMiLCJleHAiOjE3NDEwNDkzMzJ9.NrWGmw26fgb3Il_onvWfmpiQ90uGz4IAd58ggy0YyhE"
         if (!token) throw new Error('No authentication token');
+        console.log(weeklySlots)
 
         const response = await fetch(`${API_BASE_URL}/users/schedule`, {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({weekly_slots: weeklySlots })
         });
+
 
         if (!response.ok) {
             if (     response.status === 401) throw new Error('Authentication required');
@@ -68,6 +69,6 @@ export const schedCalls = {
         }
 
         const data = await response.json();
-        return data.event;
+        return data.weekly_slots;
     },
 }
