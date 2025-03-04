@@ -35,7 +35,7 @@ export default function ScheduleScreen() {
     if (!scheduledTimes) return;
 
     setHighlightedSlots((prev) => {
-      const newSlots: Record<number, Set<string>> = {}; //change to {...prev}??
+      const newSlots: Record<number, Set<string>> = {}; 
 
       scheduledTimes.weekly_slots.forEach(({ day_of_week, start_time, end_time }) => {
         
@@ -356,6 +356,4 @@ const schedStyles = StyleSheet.create({
     paddingVertical: 0.05,
     paddingHorizontal: 5,
   },
-
-  
 });
