@@ -19,6 +19,7 @@
     "react": "18.3.1",
     "react-native": "^0.77.1",
     "react-native-gesture-handler": "^2.23.1",
+    "react-native-input-select": "^2.1.3",
     "react-native-paper": "^5.13.1",
     "react-native-progress-step-bar": "^1.0.0",
     "react-native-reanimated": "^3.16.7",
