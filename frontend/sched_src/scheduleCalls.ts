@@ -5,9 +5,7 @@ import { WeeklySlot, ScheduleEvent } from  './schedEvent';
 export const schedCalls = {
     async getSchedule(): Promise<ScheduleEvent> {
         try {
-            // const token = await getAuthToken();
-            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlcjMiLCJleHAiOjE3NDEwNDkzMzJ9.NrWGmw26fgb3Il_onvWfmpiQ90uGz4IAd58ggy0YyhE"
-
+            const token = await getAuthToken();
             if (!token) throw new Error('No authentication token');
 
             const response = await fetch(`${API_BASE_URL}/users/schedule`, { 
@@ -46,8 +44,7 @@ export const schedCalls = {
     },
 
     async updateSchedule(weeklySlots: WeeklySlot[]): Promise<ScheduleEvent> {
-        // const token = await getAuthToken();
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlcjMiLCJleHAiOjE3NDEwNDkzMzJ9.NrWGmw26fgb3Il_onvWfmpiQ90uGz4IAd58ggy0YyhE"
+        const token = await getAuthToken();
         if (!token) throw new Error('No authentication token');
         console.log(weeklySlots)
 
