@@ -1,11 +1,9 @@
-
-
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 // npm i react-native-progress-step-bar --save
 import ProgressBar from "react-native-progress-step-bar";
 
-export default function GymPlanScreen()  {
+export default function GymPlanScreen({ setCurrentScreen }: any)  {
   const [currentStep, setCurrentStep] = useState(0);
   const steps = 3;
 
@@ -16,6 +14,14 @@ export default function GymPlanScreen()  {
   const handleNextStep = useCallback(() => {
     if (currentStep < steps) setCurrentStep((prevStep) => prevStep + 1);
   }, [currentStep]);
+
+  const handleModify = () => {
+    setCurrentScreen('GymPlanEdit');
+  };
+
+  const handleFeedBack = () => {
+    setCurrentScreen('FeedBack');
+  };
 
   const plan = {
     title: 'My Workout Plan',
@@ -60,10 +66,10 @@ export default function GymPlanScreen()  {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity onPress={handleModify} style={styles.button}>
         <Text style={styles.buttonText}>Modify Plan</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity onPress={handleFeedBack} style={styles.button}>
         <Text style={styles.buttonText}>Feedback</Text>
       </TouchableOpacity>
 
@@ -99,22 +105,22 @@ export default function GymPlanScreen()  {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#F8F9FA',
+    paddingHorizontal: '12%',
+    backgroundColor: '#182B49',
   },
   title: {
     marginTop: 40,
     fontSize: 30,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#333',
+    color: 'white',
   },
   content: {
     fontSize: 16,
     lineHeight: 24,
     marginTop: 10,
     textAlign: 'center',
-    color: '#555',
+    color: 'white',
   },
   sectionTitle: {
     color: '#F8C471',
@@ -158,7 +164,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 30,
     textAlign: 'center',
-    color: '#333',
+    color: 'white',
   },
   progressContainer: {
     alignItems: 'center',
@@ -199,4 +205,3 @@ const styles = StyleSheet.create({
     
   },
 });
-

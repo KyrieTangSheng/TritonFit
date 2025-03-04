@@ -1,12 +1,21 @@
 import React from 'react';
 import { useState } from "react";
 import {StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, SafeAreaView} from 'react-native';
+import { IconButton } from 'react-native-paper'; // Import IconButton
 
-export default function feedbackScreen() {
+export default function feedbackScreen({setCurrentScreen }: any) {
     const [text, onChangeBlank] = React.useState('');
 
     return (
         <View style={schedStyles.blue}>
+          {/* Top Left Icon Button */}
+      <IconButton 
+        icon="arrow-left" 
+        size={24} 
+        iconColor="#FFCD00" 
+        style={schedStyles.backButton}
+        onPress={() => setCurrentScreen('GymPlan')}
+      />
             {/* Page Title */}
             <View style={schedStyles.headerContainer}>
                 <Text style={[schedStyles.headerText, schedStyles.white]}>Feedback</Text>
@@ -78,6 +87,11 @@ const schedStyles = StyleSheet.create({
       width: '40%',
       fontSize: 18,
       borderRadius: 5, //rounded corners
+    },
+    backButton: { 
+      position: 'absolute',
+      top: '3%',
+      left: 0 
     },
   
   
