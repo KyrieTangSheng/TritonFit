@@ -207,14 +207,14 @@ export default function ScheduleScreen() {
   
   // WHAT USER SEES:
   return (
-    <View style={schedStyles.blue}>
+    <View style={[schedStyles.navy, schedStyles.container]}>
 
       {/* Page title */}
-      <View style={schedStyles.headerContainer}>
-        <Text style={[schedStyles.headerText, schedStyles.white]}>Weekly Availability</Text>
+      <View>
+        <Text style={[schedStyles.headerContainer, schedStyles.headerText, schedStyles.white]}>Weekly Availability</Text>
       </View>
 
-      <ScrollView>
+      <ScrollView style = {schedStyles.gridContainer}>
         {/* Calendar */}
         <View style={[schedStyles.grid, schedStyles.stone]}>
           {/* Days of the week row */}
@@ -283,9 +283,17 @@ export default function ScheduleScreen() {
 
 
 const schedStyles = StyleSheet.create({
+  container: {
+    paddingLeft: '19%',
+    paddingRight: '19%',
+    height: '100%',
+    flex: 1,
+  },
+
   headerContainer: {
     alignItems: 'center',
     marginTop: 25,
+    // flex: 2,
   },
   headerText: {
     fontWeight: 'bold',
@@ -297,15 +305,15 @@ const schedStyles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 25,
     paddingBottom: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
   },
   preferences: {
     textAlign: 'center',
     fontWeight: 'bold',
-    width: '45%',
+    width: '50%',
     fontSize: 18,
-    borderRadius: 5, //rounded corners
+    borderRadius: 8, //rounded corners
   },
 
 
@@ -336,6 +344,10 @@ const schedStyles = StyleSheet.create({
   },
 
 
+  gridContainer: {
+    marginLeft: "-20%", 
+    marginRight: "-20%"
+  },
   grid: {
     flexDirection: 'column',
     flexWrap: 'wrap',
@@ -349,11 +361,13 @@ const schedStyles = StyleSheet.create({
   },
   gridItem: {
     flex: 1,
-    padding: 7,
     textAlign: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
     paddingVertical: 0.05,
     paddingHorizontal: 5,
+    aspectRatio: 0.8,
   },
+
+  
 });
