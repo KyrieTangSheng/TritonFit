@@ -2,6 +2,8 @@ import React from 'react';
 import { useState } from "react";
 import {StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, SafeAreaView} from 'react-native';
 import { IconButton } from 'react-native-paper'; // Import IconButton
+import { feedCalls } from './sched_src/feedbackCalls';
+
 
 export default function feedbackScreen({setCurrentScreen }: any) {
     const [text, onChangeBlank] = React.useState('');
@@ -40,9 +42,17 @@ export default function feedbackScreen({setCurrentScreen }: any) {
 
             {/* Preferences Button */}
             <View>
-                <TouchableOpacity style={schedStyles.button}    
-                    //TODO: send text to DB
-                    onPress={() => {}} >
+                <TouchableOpacity style={schedStyles.button} 
+                      // send to DB
+                    onPress={async() => {
+                      try {
+                        await feedCalls.sendFeedback(text); //API
+                        console.log('Feedback sent successfully');
+                      } catch (error) {
+                        console.error('Error sending feedback:', error);
+                      }
+                      
+                    }} >
                 <Text style={[schedStyles.buttonText, schedStyles.gold, schedStyles.white]}>Submit</Text>
                 </TouchableOpacity>
             </View>
