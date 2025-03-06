@@ -5,8 +5,7 @@ import { plan_id } from  './planID';
 
 export const feedCalls = {
     async sendFeedback(feedBack: string): Promise<WorkoutPlan> {
-        // const token = await getAuthToken();
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlcjMiLCJleHAiOjE3NDEyODMyMjV9.RlajPYl3k7eBl_VyWZeV6G7nxx3Cq9ejMoNGAhGuFbc"
+        const token = await getAuthToken();
         if (!token) throw new Error('No authentication token');
 
         console.log("sending feedback...")
