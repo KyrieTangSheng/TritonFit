@@ -2,27 +2,30 @@ import React from 'react';
 import { useState } from "react";
 import {StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, SafeAreaView} from 'react-native';
 import { IconButton } from 'react-native-paper'; // Import IconButton
+import { feedCalls } from './sched_src/feedbackCalls';
+
 
 export default function feedbackScreen({setCurrentScreen }: any) {
     const [text, onChangeBlank] = React.useState('');
 
     return (
-        <View style={schedStyles.blue}>
-          {/* Top Left Icon Button */}
-      <IconButton 
-        icon="arrow-left" 
-        size={24} 
-        iconColor="#FFCD00" 
-        style={schedStyles.backButton}
-        onPress={() => setCurrentScreen('GymPlan')}
-      />
+        <View style={[schedStyles.blue, {flexWrap: 'wrap'}]}>
+            {/* Top Left Icon Button */}
+            <IconButton 
+              icon="arrow-left" 
+              size={24} 
+              iconColor="#FFCD00" 
+              style={schedStyles.backButton}
+              onPress={() => setCurrentScreen('GymPlan')}
+            />
+
             {/* Page Title */}
-            <View style={schedStyles.headerContainer}>
-                <Text style={[schedStyles.headerText, schedStyles.white]}>Feedback</Text>
+            <View>
+                <Text style={[schedStyles.headerContainer, schedStyles.headerText, schedStyles.white]}>Feedback</Text>
             </View>
 
             {/* Text Box */}
-            <ScrollView>
+            <ScrollView style = {schedStyles.containerFeedback}>
                 <SafeAreaView
                     style={[schedStyles.containerFeedback, schedStyles.backWhite]}>
                     <TextInput
@@ -40,9 +43,17 @@ export default function feedbackScreen({setCurrentScreen }: any) {
 
             {/* Preferences Button */}
             <View>
-                <TouchableOpacity style={schedStyles.button}    
-                    //TODO: send text to DB
-                    onPress={() => {}} >
+                <TouchableOpacity style={schedStyles.button} 
+                      // send to DB
+                    onPress={async() => {
+                      try {
+                        await feedCalls.sendFeedback(text); //API
+                        console.log('Feedback sent successfully');
+                      } catch (error) {
+                        console.error('Error sending feedback:', error);
+                      }
+                      
+                    }} >
                 <Text style={[schedStyles.buttonText, schedStyles.gold, schedStyles.white]}>Submit</Text>
                 </TouchableOpacity>
             </View>
@@ -63,23 +74,30 @@ const schedStyles = StyleSheet.create({
     },
 
     containerFeedback: {
-        marginTop: '10%',
-        marginLeft: '5%',
-        marginRight: '5%',
-        marginBottom: '5%',
-        paddingBottom: '60%',
+        flex: 1,
+        marginTop: '5%',
+        marginLeft: '-20%',
+        marginRight: '-20%',
+        paddingBottom: '100%',
+        paddingLeft: '10%',
+        paddingRight: '10%',
+        borderRadius: 5,
       },
 
     textInput: {
         padding: 10,
+        flexWrap: 'wrap',
+        width: '100%',
     },
   
     button: {
       position: 'relative',
       alignItems: 'center',
       marginBottom: '90%',
-      paddingLeft: 10,
-      paddingRight: 10,
+      marginLeft: '-20%',
+      marginRight: '-20%',
+      paddingLeft: -20,
+      paddingRight: -20,
     },
     buttonText: {
       textAlign: 'center',
@@ -91,7 +109,7 @@ const schedStyles = StyleSheet.create({
     backButton: { 
       position: 'absolute',
       top: '3%',
-      left: 0 
+      left: "-15%"
     },
   
   
