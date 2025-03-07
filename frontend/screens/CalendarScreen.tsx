@@ -1,8 +1,8 @@
 import React from 'react';
 import { useState, useRef, useEffect, useCallback } from "react";
 import {StyleSheet, Text, View, ScrollView, TouchableOpacity, Pressable} from 'react-native';
-import { schedCalls } from '../sched_src/scheduleCalls';
-import { ScheduleEvent, WeeklySlot } from  '../sched_src/schedEvent';
+import { schedCalls } from '../src/scheduleCalls';
+import { ScheduleEvent, WeeklySlot } from  '../src/schedEvent';
 
 export default function ScheduleScreen() {
 
