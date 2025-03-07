@@ -1,13 +1,41 @@
 // screens/SocialScreen.tsx
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import GymMateCard from "../components/GymMateCard";
+import {API_BASE_URL} from "../sched_src/config.ts";
+import {getAuthToken} from "../sched_src/auth.ts";
+import axios from "axios";
 
 export default function SocialScreen({ setCurrentScreen }: any) {
+  const[recommendation, setRecommendation] = useState([]);
   const gymMates = [
     { name: "John Doe", location: "RIMAC", activities: ["Weightlifting", "Cardio", "Yoga"] },
     { name: "Jane Smith", location: "Main Gym", activities: ["HIIT", "Pilates", "Cycling"] },
   ];
+
+  useEffect(() => {
+    getAuthToken()
+      .then(token => {
+        console.log(token)
+        let auth_str = `Bearer ${token}`
+        axios.get(`${API_BASE_URL}/social/recommendations`, {
+          'headers': {
+            'Authorization': auth_str
+          }
+        })
+          .then(response => {
+            console.log(response.data.recommendations);
+            setRecommendation(response.data.recommendations);
+          })
+          .catch(error => {
+            console.error(error)
+          });
+      })
+      .catch(error => {
+        console.error(error)
+      })
+
+  }, [])
   
   return (
     <View style={styles.container}>
