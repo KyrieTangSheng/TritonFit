@@ -4,7 +4,7 @@ from bson import ObjectId
 from ..db.mongodb import get_database
 from ..models.user import ProfileInDB, ProfileBase
 from ..models.profile import PublicProfile
-
+from typing import List
 class ProfileService:
     async def update_profile(self, user_id: str, update_data: dict) -> ProfileInDB:
         db = await get_database()
@@ -31,7 +31,6 @@ class ProfileService:
     async def get_profile(self, user_id: str) -> ProfileInDB:
         db = await get_database()
         profile = await db.profiles.find_one({"user_id": ObjectId(user_id)})
-        
         if not profile:
             raise ValueError("Profile not found")
             
@@ -100,3 +99,13 @@ class ProfileService:
         )
         
         return public_profile 
+    
+    async def get_all_profiles(self) -> List[ProfileBase]:
+        db = await get_database()
+        profiles = await db.profiles.find({}).to_list(length=None)
+        return [ProfileInDB(**profile) for profile in profiles]
+    
+    async def get_username_by_id(self, user_id: str) -> str:
+        db = await get_database()
+        user = await db.users.find_one({"_id": ObjectId(user_id)})
+        return user["username"]

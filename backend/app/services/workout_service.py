@@ -4,6 +4,7 @@ from datetime import datetime
 from ..db.mongodb import get_database
 from ..models.workout_model import WorkoutPlan, FeedbackEntry, DayWorkout, WorkoutItem
 from .llm_service import llm_service
+from bson import ObjectId
 
 # List of all days in a week
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -43,7 +44,9 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     # Get the user's profile and schedule from the database
     db = await get_database()
     user_profile = await db.profiles.find_one({"user_id": user_id})
-    user_schedule = await db.schedules.find_one({"user_id": user_id})
+    user_schedule = await db.schedules.find_one({"user_id": ObjectId(user_id)})
+    print(user_profile)
+    print(user_schedule)
     
     if not user_profile or not user_schedule:
         raise ValueError("User profile or schedule not found")
