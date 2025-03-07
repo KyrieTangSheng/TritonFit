@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { IconButton } from 'react-native-paper'; // Import IconButton
 
 interface GymPlanScreenEditorProps  {
     // setIsLoggedIn: (loggedIn: boolean) => void;
@@ -74,6 +75,13 @@ export default function GymPlanEditorScreen({ setCurrentScreen }: GymPlanScreenE
 
   return (
     <ScrollView style={styles.container}>
+      <IconButton 
+              icon="arrow-left" 
+              size={24} 
+              iconColor="#FFCD00" 
+              style={styles.backButton}
+              onPress={() => setCurrentScreen('GymPlan')}
+            />
       <Text style={styles.title}>Personalized Plan</Text>
 
       <Text style={styles.workout_schedule_headings}>Today's Workout:</Text>
@@ -196,5 +204,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  backButton: { 
+    position: 'absolute',
+    top: '3%',
+    left: 0, 
+    zIndex: 10,
   },
 });

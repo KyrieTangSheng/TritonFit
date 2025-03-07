@@ -10,7 +10,7 @@ export default function Header({ setIsLoggedIn, setCurrentScreen }: { setIsLogge
 
   const handleLogOut = () => {
     setIsLoggedIn(false); // Set login state to false
-    setCurrentScreen('Front'); // Navigate to Front screen
+    setCurrentScreen('Front'); // Navigate to Login screen
   };
 
   const handleAccountSettings = () => {

@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
-// npm install react-native-input-select
+import { IconButton } from 'react-native-paper';
 import Dropdown from 'react-native-input-select';
 
-export default function PreferencesScreen() {
+export default function PreferencesScreen({ setIsLoggedIn, setCurrentScreen }: { setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>, setCurrentScreen: React.Dispatch<React.SetStateAction<string>> }) {
+
+  const handleLogOut = () => {
+    setIsLoggedIn(false); // Set login state to false
+    setCurrentScreen('Front'); // Navigate to Login screen
+  };
+
+
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
   const [workout_location, setLocation] = useState([]);
@@ -13,124 +20,132 @@ export default function PreferencesScreen() {
   const [dob, setDob] = useState(""); // State for Date of Birth
 
   const handleSubmit = () => {
-    // Validation for missing fields
     if (!workout_location.length || !workout_types.length || !gender || !fitness_level || !dob) {
       Alert.alert("Missing Fields", "Please fill out all required fields before submitting.");
       return;
     }
-    
-    // Validate date of birth format (MM/DD/YYYY)
+
     const dobRegex = /^(0[1-9]|1[0-2])\/([0-2][1-9]|3[0-1])\/\d{4}$/;
     if (!dobRegex.test(dob)) {
       Alert.alert("Invalid Date", "Please enter a valid date of birth in the format MM/DD/YYYY.");
       return;
     }
-    
+
     console.log({ weight, height, workout_location, workout_types, gender, fitness_level, dob });
   };
 
   return (
     <ScrollView>
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.title}>Preferences</Text>
-
-        <Text style={styles.label}>Height (optional, in inches)</Text>
-        <TextInput
-          style={styles.input}
-          value={height}
-          onChangeText={setHeight}
-          keyboardType="numeric"
+      <View style={styles.container}>
+        
+        {/* Top Left Icon Button */}
+        <IconButton
+          icon="arrow-left"
+          size={30}
+          iconColor="white"
+          style={styles.backButton}
+          onPress={handleLogOut}
         />
 
-        <Text style={styles.label}>Weight (optional, in lbs)</Text>
-        <TextInput
-          style={styles.input}
-          value={weight}
-          onChangeText={setWeight}
-          keyboardType="numeric"
-        />
+        <View style={styles.form}>
+          <Text style={styles.title}>Preferences</Text>
 
-        <Text style={styles.label}>Workout Location</Text>    
-        <Dropdown
-          placeholder='Please select an option'
-          placeholderStyle={styles.selectedItem}
-          dropdownStyle={styles.select}
-          selectedItemStyle={styles.selectedItem}
-          options={[
-            { label: 'Home', value: 'Home' },
-            { label: 'Main Gym', value: 'Main' },
-            { label: 'Rimac Gym', value: 'Rimac' },        
-          ]}
-          selectedValue={workout_location}
-          onValueChange={(value) => setLocation(value)}
-        />
+          <Text style={styles.label}>Height (optional, in inches)</Text>
+          <TextInput
+            style={styles.input}
+            value={height}
+            onChangeText={setHeight}
+            keyboardType="numeric"
+          />
 
-        <Text style={styles.label}>Workout Types</Text>    
-        <Dropdown
-          placeholder='Please select your option(s)'
-          placeholderStyle={styles.selectedItem}
-          dropdownStyle={styles.select}
-          selectedItemStyle={styles.selectedItem}
-          options={[
-            { label: 'Core', value: 'Core' },
-            { label: 'Chest', value: 'Chest' },
-            { label: 'Back', value: 'Back' },
-            { label: 'Arms', value: 'Arms' },
-            { label: 'Legs', value: 'Legs' },
-          ]}
-          isMultiple
-          selectedValue={workout_types}
-          onValueChange={(value) => setWorkoutTypes(value)}
-        />
+          <Text style={styles.label}>Weight (optional, in lbs)</Text>
+          <TextInput
+            style={styles.input}
+            value={weight}
+            onChangeText={setWeight}
+            keyboardType="numeric"
+          />
 
-        <Text style={styles.label}>Gender</Text>    
-        <Dropdown
-          placeholder='Please select an option'
-          placeholderStyle={styles.selectedItem}
-          dropdownStyle={styles.select}
-          selectedItemStyle={styles.selectedItem}
-          options={[
-            { label: 'Female', value: 'Female' },
-            { label: 'Male', value: 'Male' },
-            { label: 'Non-Binary', value: 'Non-Binary' },
-            { label: "Don't want to answer", value: 'Prefer Not to Say' },
-          ]}
-          selectedValue={gender}
-          onValueChange={(value) => setGender(value)}
-        />
+          <Text style={styles.label}>Workout Location</Text>
+          <Dropdown
+            placeholder='Please select an option'
+            placeholderStyle={styles.selectedItem}
+            dropdownStyle={styles.select}
+            selectedItemStyle={styles.selectedItem}
+            options={[
+              { label: 'Home', value: 'Home' },
+              { label: 'Main Gym', value: 'Main' },
+              { label: 'Rimac Gym', value: 'Rimac' },
+            ]}
+            selectedValue={workout_location}
+            onValueChange={(value) => setLocation(value)}
+          />
 
-        <Text style={styles.label}>Fitness Level</Text>    
-        <Dropdown
-          placeholder='Please select an option'
-          placeholderStyle={styles.selectedItem}
-          dropdownStyle={styles.select}
-          selectedItemStyle={styles.selectedItem} 
-          options={[
-            { label: 'Beginner', value: 1 },
-            { label: 'Intermediate', value: 2 },
-            { label: 'Expert', value: 3 },
-          ]}
-          selectedValue={fitness_level}
-          onValueChange={(value) => setFitness(value)}
-        />
+          <Text style={styles.label}>Workout Types</Text>
+          <Dropdown
+            placeholder='Please select your option(s)'
+            placeholderStyle={styles.selectedItem}
+            dropdownStyle={styles.select}
+            selectedItemStyle={styles.selectedItem}
+            options={[
+              { label: 'Core', value: 'Core' },
+              { label: 'Chest', value: 'Chest' },
+              { label: 'Back', value: 'Back' },
+              { label: 'Arms', value: 'Arms' },
+              { label: 'Legs', value: 'Legs' },
+            ]}
+            isMultiple
+            selectedValue={workout_types}
+            onValueChange={(value) => setWorkoutTypes(value)}
+          />
 
-        <Text style={styles.label}>Date of Birth (MM/DD/YYYY)</Text>
-        <TextInput
-          style={styles.input}
-          value={dob}
-          onChangeText={setDob}
-          placeholder="MM/DD/YYYY"
-          placeholderTextColor={"white"}
-          keyboardType="numeric"
-        />
+          <Text style={styles.label}>Gender</Text>
+          <Dropdown
+            placeholder='Please select an option'
+            placeholderStyle={styles.selectedItem}
+            dropdownStyle={styles.select}
+            selectedItemStyle={styles.selectedItem}
+            options={[
+              { label: 'Female', value: 'Female' },
+              { label: 'Male', value: 'Male' },
+              { label: 'Non-Binary', value: 'Non-Binary' },
+              { label: "Don't want to answer", value: 'Prefer Not to Say' },
+            ]}
+            selectedValue={gender}
+            onValueChange={(value) => setGender(value)}
+          />
 
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
-        </TouchableOpacity>
+          <Text style={styles.label}>Fitness Level</Text>
+          <Dropdown
+            placeholder='Please select an option'
+            placeholderStyle={styles.selectedItem}
+            dropdownStyle={styles.select}
+            selectedItemStyle={styles.selectedItem}
+            options={[
+              { label: 'Beginner', value: 1 },
+              { label: 'Intermediate', value: 2 },
+              { label: 'Expert', value: 3 },
+            ]}
+            selectedValue={fitness_level}
+            onValueChange={(value) => setFitness(value)}
+          />
+
+          <Text style={styles.label}>Date of Birth (MM/DD/YYYY)</Text>
+          <TextInput
+            style={styles.input}
+            value={dob}
+            onChangeText={setDob}
+            placeholder="MM/DD/YYYY"
+            placeholderTextColor={"white"}
+            keyboardType="numeric"
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Submit</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      </View>
-      </ScrollView>
+    </ScrollView>
   );
 };
 
@@ -138,7 +153,13 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     flex: 1,
-    backgroundColor: '#00629B'
+    backgroundColor: '#00629B',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1,
   },
   title: {
     marginTop: 50,
@@ -164,7 +185,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
     paddingLeft: 20,
-    backgroundColor:"white",
+    backgroundColor: "white",
   },
   select: {
     flex: 1,
