@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from "react";
 import {StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, SafeAreaView} from 'react-native';
 import { IconButton } from 'react-native-paper'; // Import IconButton
-import { feedCalls } from './sched_src/feedbackCalls';
+import { feedCalls } from '../sched_src/feedbackCalls';
 
 
 export default function feedbackScreen({setCurrentScreen }: any) {
