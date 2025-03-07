@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import config from "../config.tsx";
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import {API_BASE_URL} from "../sched_src/config.ts";
+import {setAuthToken} from "../sched_src/auth.ts"
 import axios from "axios";
 
 interface LoginScreenProps {
@@ -13,16 +14,24 @@ export default function LoginScreen({ setIsLoggedIn, setCurrentScreen }: LoginSc
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    axios.post(`${config.BASE_URL}/auth/login`, {
+    axios.post(`${API_BASE_URL}/auth/login`, {
       "username": username,
       "password": password,
     })
       .then(response => {
         console.log(response);
+        let data = response.data;
+        let token = data["access_token"];
+        setAuthToken(token);
         setIsLoggedIn(true);
         setCurrentScreen('Home');
       })
-      .catch(error => console.error(error));
+      .catch(error => {
+        console.log(error);
+        if(error.response && error.response.status === 401) {
+          Alert.alert("Login Failed", "Cannot find that combination of username and password.");
+        }
+      });
   };
 
   return (
