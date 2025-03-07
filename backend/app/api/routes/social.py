@@ -17,17 +17,28 @@ async def get_recommendations(current_user: UserInDB = Depends(get_current_user)
     """
     try:
         # Get user profile to extract preferences
-        profile = await profile_service.get_profile(str(current_user.id))
-        
+        user_profile = await profile_service.get_profile(str(current_user.id))
+        other_users_profile = await profile_service.get_all_profiles()
         # Create preferences dictionary based on user profile
-        preferences = {
-            "Sports": profile.workout_categories if hasattr(profile, "workout_categories") else [],
-            "FitnessLevel": profile.fitness_level if hasattr(profile, "fitness_level") else 1,
-            "WorkoutTypes": profile.workout_types if hasattr(profile, "workout_types") else []
+        user_preferences = {
+            "username": await profile_service.get_username_by_id(user_profile.user_id),
+            "Sports": user_profile.workout_categories if hasattr(user_profile, "workout_categories") else [],
+            "FitnessLevel": user_profile.fitness_level if hasattr(user_profile, "fitness_level") else 1,
+            "WorkoutTypes": user_profile.workout_types if hasattr(user_profile, "workout_types") else []
         }
         
+        other_users_preferences = [
+            {
+                "username": await profile_service.get_username_by_id(other_user_profile.user_id),
+                "Sports": other_user_profile.workout_categories if hasattr(other_user_profile, "workout_categories") else [],
+                "FitnessLevel": other_user_profile.fitness_level if hasattr(other_user_profile, "fitness_level") else 1,
+                "WorkoutTypes": other_user_profile.workout_types if hasattr(other_user_profile, "workout_types") else []
+            }
+            for other_user_profile in other_users_profile if other_user_profile.user_id != user_profile.user_id
+        ]
+        
         # Get recommendations from the recommender system
-        recommendations = await social_service.get_recommendations(preferences)
+        recommendations = await social_service.get_recommendations(user_preferences, other_users_preferences)
         response = {
             "recommendations": recommendations
         }
