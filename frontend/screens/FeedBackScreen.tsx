@@ -17,7 +17,7 @@ export default function feedbackScreen({setCurrentScreen }: any) {
     // const filePath = FileSystem.documentDirectory + 'workoutPlans.json'; //from GymPlanScreen.tsx
 
     //non expoGo version:
-    const filePath = RNFS.DocumentDirectoryPath + '/workoutPlans.json'; 
+    const filePath = RNFS.ExternalDirectoryPath + '/workoutPlans.json'; 
 
     // Read plan_id from the file when the screen loads
     useEffect(() => {
