@@ -1,10 +1,9 @@
 import { API_BASE_URL } from './config';
 import { getAuthToken } from './auth';
 import { WorkoutPlan } from  './feedbackEvent';
-import { plan_id } from  './planID';
 
 export const feedCalls = {
-    async sendFeedback(feedBack: string): Promise<WorkoutPlan> {
+    async sendFeedback(feedBack: string, plan_id: string): Promise<WorkoutPlan> {
         const token = await getAuthToken();
         if (!token) throw new Error('No authentication token');
 
