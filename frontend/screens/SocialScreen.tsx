@@ -46,12 +46,12 @@ export default function SocialScreen({ setCurrentScreen }: any) {
         workout schedules.
       </Text>
       <Text style={styles.title}>Sorted By Gym</Text>
-      {gymMates.map((mate, index) => (
+      {recommendation.map((mate, index) => (
         <GymMateCard
           key={index}
-          name={mate.name}
-          location={mate.location}
-          activities={mate.activities}
+          name={mate["name"]}
+          // location={mate.location}
+          // activities={mate.activities}
           setCurrentScreen={setCurrentScreen}
         />
       ))}
