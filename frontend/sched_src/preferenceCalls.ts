@@ -16,7 +16,7 @@ export interface PreferenceSetting
 
 export const getPreferences = async (): Promise<PreferenceSetting> => {
   try {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huIiwiZXhwIjoxNzQxMzE1MjY5fQ.7DO1X8lXJ7TFtl3wVdyVJbD3-RF2SDGBjWjpzEY_kFA';
+    const token = await getAuthToken();
     if (!token) throw new Error('No authentication token');
 
     const response = await fetch(`${API_BASE_URL}/users/profile`, {
@@ -53,7 +53,7 @@ export const getPreferences = async (): Promise<PreferenceSetting> => {
 
 export const updatePreferences = async (preferences: PreferenceSetting): Promise<void> => {
   try {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huIiwiZXhwIjoxNzQxMzE1MjY5fQ.7DO1X8lXJ7TFtl3wVdyVJbD3-RF2SDGBjWjpzEY_kFA';
+    const token = await getAuthToken();
     if (!token) throw new Error('No authentication token');
 
     const response = await fetch(`${API_BASE_URL}/users/profile`, {
