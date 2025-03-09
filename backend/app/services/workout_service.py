@@ -44,9 +44,7 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     # Get the user's profile and schedule from the database
     db = await get_database()
     user_profile = await db.profiles.find_one({"user_id": user_id})
-    user_schedule = await db.schedules.find_one({"user_id": ObjectId(user_id)})
-    print(user_profile)
-    print(user_schedule)
+    user_schedule = await db.schedules.find_one({"user_id": user_id})
     
     if not user_profile or not user_schedule:
         raise ValueError("User profile or schedule not found")
@@ -64,8 +62,7 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     - Health Conditions: {user_profile.get('health_conditions', [])}
     
     Available Schedule:
-    {user_schedule.get('availability', {})}
-    If user has no schedule, by default the user is available at any time of the day
+    {_format_weekly_slots_for_prompt(user_schedule.get('weekly_slots', []))}
     
     Please create a detailed weekly workout plan for ALL 7 days (Monday through Sunday) in the following JSON format:
     {plan_json_format}
@@ -108,6 +105,31 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     
     except Exception as e:
         raise ValueError(f"Failed to generate workout plan: {str(e)}")
+
+def _format_weekly_slots_for_prompt(weekly_slots: List[Dict]) -> str:
+    """Format weekly slots for prompt in a human-readable way"""
+    if not weekly_slots:
+        return "The user has no specific schedule provided. By default, the user is available at any time of the day."
+    
+    # Map numeric day to day name
+    day_map = {
+        0: "Sunday",
+        1: "Monday", 
+        2: "Tuesday", 
+        3: "Wednesday", 
+        4: "Thursday", 
+        5: "Friday", 
+        6: "Saturday"
+    }
+    
+    formatted_slots = []
+    for slot in weekly_slots:
+        day = day_map.get(slot.get('day_of_week'), f"Day {slot.get('day_of_week')}")
+        start = slot.get('start_time', '').split('.')[0]  # Remove milliseconds if present
+        end = slot.get('end_time', '').split('.')[0]
+        formatted_slots.append(f"- {day}: {start} to {end}")
+    
+    return "\n".join(formatted_slots) + "\n\nPlease schedule workouts during these available time slots whenever possible."
 
 async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> WorkoutPlan:
     """Update a workout plan based on user feedback"""
@@ -156,8 +178,6 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
             system_prompt=system_prompt,
             user_prompt=user_prompt
         )
-        
-        print(f"LLM Response: {llm_response}")
         
         # Check if the response has the expected structure
         if "days" in llm_response:
@@ -242,7 +262,6 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
         return plan
     
     except Exception as e:
-        print(f"Error updating workout plan: {str(e)}")
         raise ValueError(f"Failed to update workout plan: {str(e)}")
 
 async def get_today_workout(user_id: str) -> Optional[Dict]:
