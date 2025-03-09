@@ -32,12 +32,85 @@ plan_json_format = """
             }}
           ],
           "location": "Gym|Home|Outdoor",
-          "time": "6:00-6:30AM"
+          "time": "17:00:00-18:00:00"
         }},
         ...other days...
       }}
     }}
 """
+
+def normalize_time_format(time_str: str) -> str:
+    """Convert various time formats to standard 24-hour format with seconds (HH:MM:SS-HH:MM:SS)"""
+    if not time_str or time_str == "N/A":
+        return "N/A"
+        
+    try:
+        # Handle various input formats
+        if "-" in time_str:
+            start_time, end_time = time_str.split("-")
+            
+            # Process start time
+            if "AM" in start_time or "PM" in start_time:
+                # Convert from 12-hour to 24-hour format
+                am_pm = "AM" if "AM" in start_time.upper() else "PM"
+                start_time = start_time.upper().replace(am_pm, "").strip()
+                
+                # Add seconds if not present
+                if ":" in start_time:
+                    parts = start_time.split(":")
+                    if len(parts) == 2:
+                        hour, minute = parts
+                        start_time = f"{hour.zfill(2)}:{minute.zfill(2)}:00"
+                    elif len(parts) == 3:
+                        start_time = ":".join(p.zfill(2) for p in parts)
+                else:
+                    # If only hour is provided
+                    start_time = f"{start_time.zfill(2)}:00:00"
+                
+                # Convert to 24-hour format
+                dt = datetime.strptime(f"{start_time} {am_pm}", "%I:%M:%S %p")
+                start_time = dt.strftime("%H:%M:%S")
+            else:
+                # Already in 24-hour format, ensure it has seconds
+                if ":" in start_time:
+                    parts = start_time.split(":")
+                    if len(parts) == 2:
+                        start_time = f"{start_time}:00"
+                else:
+                    start_time = f"{start_time.zfill(2)}:00:00"
+            
+            # Process end time similarly
+            if "AM" in end_time or "PM" in end_time:
+                am_pm = "AM" if "AM" in end_time.upper() else "PM"
+                end_time = end_time.upper().replace(am_pm, "").strip()
+                
+                if ":" in end_time:
+                    parts = end_time.split(":")
+                    if len(parts) == 2:
+                        hour, minute = parts
+                        end_time = f"{hour.zfill(2)}:{minute.zfill(2)}:00"
+                    elif len(parts) == 3:
+                        end_time = ":".join(p.zfill(2) for p in parts)
+                else:
+                    end_time = f"{end_time.zfill(2)}:00:00"
+                
+                dt = datetime.strptime(f"{end_time} {am_pm}", "%I:%M:%S %p")
+                end_time = dt.strftime("%H:%M:%S")
+            else:
+                if ":" in end_time:
+                    parts = end_time.split(":")
+                    if len(parts) == 2:
+                        end_time = f"{end_time}:00"
+                else:
+                    end_time = f"{end_time.zfill(2)}:00:00"
+            
+            return f"{start_time}-{end_time}"
+        else:
+            # If no range is provided, return as is
+            return time_str
+    except Exception as e:
+        print(f"Error normalizing time format: {str(e)}")
+        return time_str  # Return original if parsing fails
 
 async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     """Generate a workout plan based on user profile and schedule"""
@@ -89,6 +162,9 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
                     "location": "Rest day",
                     "time": "N/A"
                 }
+            else:
+                # Normalize time format
+                days_data[day]["time"] = normalize_time_format(days_data[day].get("time", "N/A"))
         
         # Create and save the workout plan
         # Ensure user_id is a string
@@ -243,6 +319,9 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
                 day_data["location"] = "Home"
             if "time" not in day_data:
                 day_data["time"] = "Morning"
+            
+            # Normalize time format
+            day_data["time"] = normalize_time_format(day_data.get("time", "N/A"))
                 
         # Add missing days
         for day in DAYS_OF_WEEK:
