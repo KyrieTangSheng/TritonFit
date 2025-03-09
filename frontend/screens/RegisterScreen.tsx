@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Dropdown from 'react-native-input-select';
-import { registerUser } from '../registerCalls'; // Import the API function
+import { registerUser } from '../sched_src/registerCalls'; // Import the API function
 
 export default function RegisterScreen({ setIsLoggedIn, setCurrentScreen }: { setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>, setCurrentScreen: React.Dispatch<React.SetStateAction<string>> }) {
 
