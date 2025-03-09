@@ -9,7 +9,7 @@ export default function GymPlanScreen({ setCurrentScreen }: any) {
     const [workoutPlan, setWorkoutPlan] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentStep, setCurrentStep] = useState<number>(0);
-    const steps = 3;
+    const steps = 1;
 
     useEffect(() => {
         const fetchWorkout = async () => {
