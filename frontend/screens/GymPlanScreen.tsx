@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { gymPlanService } from '../plan_src/planEvent';
+import { gymPlanService } from '../sched_src/planEvent';
 import ProgressBar from "react-native-progress-step-bar";
-import { WorkoutItem, Exercise } from '../plan_src/formatting';
+import { WorkoutItem, Exercise } from '../sched_src/formatting';
 import RNFS from 'react-native-fs';
 
 export default function GymPlanScreen({ setCurrentScreen }: any) {
