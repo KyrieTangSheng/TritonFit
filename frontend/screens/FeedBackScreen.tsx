@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import {StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, SafeAreaView} from 'react-native';
 import { IconButton } from 'react-native-paper'; // Import IconButton
-import { feedCalls } from '../src/feedbackCalls';
+import { feedCalls } from '../sched_src/feedbackCalls';
 import * as FileSystem from 'expo-file-system'; // if using expoGo
 import RNFS from 'react-native-fs'; // if NOT using expoGO
 
