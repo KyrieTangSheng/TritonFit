@@ -1,13 +1,49 @@
 // screens/SocialScreen.tsx
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import GymMateCard from "../components/GymMateCard";
+import {API_BASE_URL} from "../sched_src/config.ts";
+import {getAuthToken} from "../sched_src/auth.ts";
+import axios from "axios";
+
+type GymMate = {
+  preferences: {
+    FitnessLevel: number;
+    Sports: string[];
+    WorkoutTypes: string[];
+    username: string;
+  };
+  similarity: number;
+  username: string;
+}
+
 
 export default function SocialScreen({ setCurrentScreen }: any) {
-  const gymMates = [
-    { name: "John Doe", location: "RIMAC", activities: ["Weightlifting", "Cardio", "Yoga"] },
-    { name: "Jane Smith", location: "Main Gym", activities: ["HIIT", "Pilates", "Cycling"] },
-  ];
+  const[recommendation, setRecommendation] = useState<GymMate[]>([]);
+
+  useEffect(() => {
+    getAuthToken()
+      .then(token => {
+        console.log(token)
+        let auth_str = `Bearer ${token}`
+        axios.get(`${API_BASE_URL}/social/recommendations`, {
+          'headers': {
+            'Authorization': auth_str
+          }
+        })
+          .then(response => {
+            console.log(response.data.recommendations);
+            setRecommendation(response.data.recommendations);
+          })
+          .catch(error => {
+            console.error(error)
+          });
+      })
+      .catch(error => {
+        console.error(error)
+      })
+
+  }, [])
   
   return (
     <View style={styles.container}>
@@ -18,12 +54,12 @@ export default function SocialScreen({ setCurrentScreen }: any) {
         workout schedules.
       </Text>
       <Text style={styles.title}>Sorted By Gym</Text>
-      {gymMates.map((mate, index) => (
+      {recommendation.map((mate, index) => (
         <GymMateCard
           key={index}
-          name={mate.name}
-          location={mate.location}
-          activities={mate.activities}
+          name={mate.username}
+          // location={mate.location}
+          // activities={mate.activities}
           setCurrentScreen={setCurrentScreen}
         />
       ))}
