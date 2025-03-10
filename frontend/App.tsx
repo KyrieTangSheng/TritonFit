@@ -14,6 +14,7 @@ import LoginScreen from './screens/LoginScreen';
 import PreferencesScreen from './screens/PreferencesScreen'; 
 import ProfileScreen from './screens/ProfileScreen'; 
 import FeedBackScreen from './screens/FeedBackScreen'; 
+import RegisterScreen from './screens/RegisterScreen'; 
 
 // Import Components
 import Header from './components/Header';
@@ -28,8 +29,8 @@ export default function App() {
       switch (currentScreen) {
         case 'Login':
           return <LoginScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
-        case 'Preferences':
-          return <PreferencesScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
+        case 'Register':
+          return <RegisterScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
         default:
           return <FrontScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
       }
@@ -46,7 +47,9 @@ export default function App() {
       case 'Social':
         return <SocialScreen setCurrentScreen={setCurrentScreen} />;
       case 'Front':
-          return <FrontScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
+        return <FrontScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen} />;
+      case 'Register':
+        return <RegisterScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
       case 'Preferences':
         return <PreferencesScreen setIsLoggedIn={setIsLoggedIn} setCurrentScreen={setCurrentScreen}/>;
       case 'Profile': 
