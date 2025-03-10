@@ -1,207 +1,145 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native';
-// npm i react-native-progress-step-bar --save
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { gymPlanService } from '../sched_src/planEvent';
 import ProgressBar from "react-native-progress-step-bar";
+import { WorkoutItem, Exercise } from '../sched_src/formatting';
+import RNFS from 'react-native-fs';
 
-export default function GymPlanScreen({ setCurrentScreen }: any)  {
-  const [currentStep, setCurrentStep] = useState(0);
-  const steps = 3;
+export default function GymPlanScreen({ setCurrentScreen }: any) {
+    const [workoutPlan, setWorkoutPlan] = useState<any>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [currentStep, setCurrentStep] = useState<number>(0);
+    
+    useEffect(() => {
+        const fetchWorkout = async () => {
+            try {
+                const data = await gymPlanService.fetchTodayWorkoutPlan();
+                setWorkoutPlan(data);
+            } catch (error) {
+                console.error('Failed to load workout plan:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchWorkout();
+    }, []);
 
-  const handlePrevStep = useCallback(() => {
-    if (currentStep > 0) setCurrentStep((prevStep) => prevStep - 1);
-  }, [currentStep]);
+       
+    const handleModify = async () => {
+        const filePath = RNFS.ExternalDirectoryPath + '/workoutPlans.json';
+      
+        try {
+          // Convert the workout plans data to a JSON string
+          const jsonData = JSON.stringify(workoutPlan);
+      
+          // Write the JSON data to a file
+          await RNFS.writeFile(filePath, jsonData, 'utf8');
+          console.log('File written successfully to ' + filePath);
+        } catch (error) {
+          console.error('Failed to write to file:', error);
+        }
+        setCurrentScreen('GymPlanEdit')
+      };
+      
+      const handleFeedback = async () => {
+        const filePath = RNFS.ExternalDirectoryPath + '/workoutPlans.json';
+      
+        try {
+          // Convert the workout plans data to a JSON string
+          const jsonData = JSON.stringify(workoutPlan);
+      
+          // Write the JSON data to a file
+          await RNFS.writeFile(filePath, jsonData, 'utf8');
+          console.log('File written successfully to ' + filePath);
+        } catch (error) {
+          console.error('Failed to write to file:', error);
+        }
+        setCurrentScreen('FeedBack')
+      };
+  
+  
 
-  const handleNextStep = useCallback(() => {
-    if (currentStep < steps) setCurrentStep((prevStep) => prevStep + 1);
-  }, [currentStep]);
+    if (loading) return <ActivityIndicator size="large" color="#C69214" style={styles.loader} />;
+    if (!workoutPlan) return <Text style={styles.title}>No workout plan for Today</Text>;
+    const steps = workoutPlan?.workout.workout_items.reduce((acc: any, item: { exercises: string | any[]; }) => acc + item.exercises.length, 0) || 1;
 
-  const handleModify = () => {
-    setCurrentScreen('GymPlanEdit');
-  };
 
-  const handleFeedBack = () => {
-    setCurrentScreen('FeedBack');
-  };
-
-  const plan = {
-    title: 'My Workout Plan',
-    content: "Let's work out today!",
-    steps: [
-      { id: 1, name: '10 min Cardio', task: ['10 Jumping Jacks', '5 Planks'] },
-      { id: 2, name: '5 min Mobility', task: '20 Lunges' },
-    ],
-    location: "Main Gym",
-    time: "3:00 - 3:15 PM",
-  };
-
-  return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>{plan.title}</Text>
-      <Text style={styles.content}>{plan.content}</Text>
-
-      <View style={styles.planContainer}>
-        <Text style={styles.sectionTitle}>Today's Workout</Text>
-        <FlatList
-          scrollEnabled={false}
-          data={plan.steps}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.planTextContainer}>
-              <Text style={styles.name}>{item.name}</Text>
-              {Array.isArray(item.task) ? (
-                item.task.map((task, index) => (
-                  <Text key={index} style={styles.workoutTask}>- {task}</Text>
-                ))
-              ) : (
-                <Text style={styles.workoutTask}>- {item.task}</Text>
-              )}
+    return (
+        <ScrollView style={styles.container}>
+            <Text style={styles.title}>Workout Plan For {workoutPlan.day}</Text>
+            <View style={styles.planContainer}>
+                {workoutPlan.workout.workout_items?.map((item: WorkoutItem) => (
+                    <View key={item.id} style={styles.workoutSection}>
+                        <Text style={styles.workoutType}>{item.type} - {item.duration}</Text>
+                        {item.exercises.map((exercise: Exercise) => (
+                            <Text key={exercise.id} style={styles.exerciseText}>
+                                {exercise.name}: {exercise.sets} sets x {exercise.reps_per_set ?? 'N/A'}, Rest: {exercise.rest_between_sets}
+                            </Text>
+                        ))}
+                    </View>
+                ))}
+                <Text style={styles.sectionTitle}>Location:</Text>
+                <Text style={styles.sectionContent}>{workoutPlan.workout.location}</Text>
+                <Text style={styles.sectionTitle}>Time:</Text>
+                <Text style={styles.sectionContent}>{workoutPlan.workout.time}</Text>
             </View>
-          )}
-        />
-        <View style={styles.infoContainer}>
-          <Text style={styles.sectionTitle}>Workout Location:</Text>
-          <Text style={styles.sectionContent}>{plan.location}</Text>
-          <Text style={styles.sectionTitle}>Workout Time:</Text>
-          <Text style={styles.sectionContent}>{plan.time}</Text>
-        </View>
-      </View>
 
-      <TouchableOpacity onPress={handleModify} style={styles.button}>
-        <Text style={styles.buttonText}>Modify Plan</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleFeedBack} style={styles.button}>
-        <Text style={styles.buttonText}>Feedback</Text>
-      </TouchableOpacity>
+            {/* Progress bar */}
+            <Text style={styles.bar}>Progress Bar</Text>
+            <View style={styles.progressContainer}>
+                <ProgressBar
+                    steps={steps}
+                    dotDiameter={20}
+                    width={320}
+                    height={10}
+                    currentStep={currentStep}
+                    stepToStepAnimationDuration={200}
+                    backgroundBarStyle={{ backgroundColor: "gray" }}
+                    filledBarStyle={{ backgroundColor: "#00629B" }}
+                    filledDotStyle={{ backgroundColor: '#C69214' }}
+                    withDots
+                />
+            </View>
 
-      <Text style={styles.bar}>Progress Bar</Text>
+            {/* Buttons */}
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
+                    style={[styles.progressButton, currentStep === 0 && styles.disabledButton]}>
+                    <Text style={styles.progressButtonText}>Prev Task</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setCurrentStep((prev) => Math.min(steps, prev + 1))}
+                    style={[styles.progressButton, currentStep === steps && styles.disabledButton]}>
+                    <Text style={styles.progressButtonText}>Next Task</Text>
+                </TouchableOpacity>
+            </View>
 
-      <View style={styles.progressContainer}>
-        <ProgressBar
-          steps={3}
-          dotDiameter={20}
-          width={320}
-          height={10}
-          currentStep={currentStep}
-          stepToStepAnimationDuration={200}
-          backgroundBarStyle={{ backgroundColor: "gray" }}
-          filledBarStyle={{ backgroundColor: "#00629B" }}
-          filledDotStyle={{ backgroundColor: '#C69214' }}
-          withDots
-        />
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={handlePrevStep} style={[styles.progressButton, currentStep === 0 && styles.disabledButton]}>
-          <Text style={styles.progressButtonText}>Prev Task</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleNextStep} style={[styles.progressButton, currentStep === steps && styles.disabledButton]}>
-          <Text style={styles.progressButtonText}>Next Task</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  );
+            <TouchableOpacity onPress={handleModify} style={styles.button}>
+                <Text style={styles.buttonText}>Modify Plan</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleFeedback} style={styles.button}>
+                <Text style={styles.buttonText}>Feedback</Text>
+            </TouchableOpacity>
+        </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: '12%',
-    backgroundColor: '#182B49',
-  },
-  title: {
-    marginTop: 40,
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: 'white',
-  },
-  content: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 10,
-    textAlign: 'center',
-    color: 'white',
-  },
-  sectionTitle: {
-    color: '#F8C471',
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 15,
-  },
-  sectionContent: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: 'bold',
-    paddingLeft: 10,
-  },
-  planContainer: {
-    backgroundColor: "#00629B",
-    marginTop: 20,
-    padding: 15,
-    borderRadius: 8,
-  },
-  planTextContainer: {
-    marginLeft: 10,
-    marginBottom: 10,
-  },
-  name: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
-  workoutTask: {
-    color: "white",
-    fontSize: 16,
-    marginTop: 10,
-    paddingLeft: 10,
-  },
-  infoContainer: {
-    marginTop: 5,
-  },
-  bar: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginTop: 30,
-    textAlign: 'center',
-    color: 'white',
-  },
-  progressContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  button: {
-    backgroundColor: '#C69214',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  progressButton: {
-    backgroundColor: '#C69214',
-    padding: 12,
-    borderRadius: 8,
-    marginHorizontal: 10,
-    marginTop: 20,
-    marginBottom: 50,
-  },
-  disabledButton: {
-    backgroundColor: '#A9A9A9',
-  },
-  progressButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    
-  },
+    container: { flex: 1, padding: 20, backgroundColor: '#182B49' },
+    title: { fontSize: 24, fontWeight: 'bold', color: 'white', textAlign: 'center', marginBottom: 20 },
+    sectionTitle: { color: '#F8C471', fontSize: 22, fontWeight: 'bold', marginTop: 10 },
+    sectionContent: { color: 'white', fontSize: 18, marginLeft: 10 },
+    planContainer: { backgroundColor: "#00629B", padding: 15, borderRadius: 8 },
+    workoutSection: { marginTop: 10 },
+    workoutType: { color: '#F8C471', fontSize: 22, fontWeight: 'bold' },
+    exerciseText: { color: 'white', fontSize: 18, marginLeft: 10 },
+    bar: { fontSize: 25, fontWeight: 'bold', marginTop: 30, textAlign: 'center', color: 'white' },
+    progressContainer: { alignItems: 'center', marginTop: 20 },
+    buttonContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
+    button: { backgroundColor: '#C69214', padding: 12, borderRadius: 8, marginTop: 20, alignItems: 'center' },
+    buttonText: { color: 'white', fontSize: 22, fontWeight: 'bold' },
+    progressButton: { backgroundColor: '#C69214', padding: 12, borderRadius: 8, marginHorizontal: 10, marginTop: 20, marginBottom: 50 },
+    disabledButton: { backgroundColor: '#A9A9A9' },
+    progressButtonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
+    loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
+
