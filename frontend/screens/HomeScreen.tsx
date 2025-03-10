@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 
-export default function HomeScreen() {
+export default function HomeScreen({ setCurrentScreen }: any) {
   const [step, setStep] = useState(1);  // Track the tutorial step
 
   const nextStep = () => {
