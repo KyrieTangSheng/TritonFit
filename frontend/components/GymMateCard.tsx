@@ -21,7 +21,7 @@ const GymMateCard = ({ name, setCurrentScreen }: GymMateCardProps) => {
           return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/users/${name}`, {
+        const response = await fetch(`${API_BASE_URL}/social/users/${name}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
