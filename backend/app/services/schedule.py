@@ -4,7 +4,7 @@ import asyncio
 from ..models.schedule import Schedule, WeeklyTimeSlot, DayOfWeek
 from ..db.mongodb import get_database
 from bson import ObjectId
-from ..services.workout_service import get_today_workout, update_workout_plan
+from ..services.workout_service import generate_workout_plan
 
 class ScheduleService:
     async def create_schedule(self, user_id: str) -> Schedule:
@@ -63,19 +63,8 @@ class ScheduleService:
     async def _update_workout_plan_background(self, user_id: str):
         """Background task to update workout plan after schedule changes"""
         try:
-            # Get the current workout plan
-            today_workout = await get_today_workout(user_id)
-            
-            if today_workout and today_workout.get("plan_id"):
-                # Generate feedback about schedule change
-                feedback = "My availability has changed. Please adjust my workout plan to fit my new schedule."
-                
-                # Update the workout plan with the new schedule information
-                await update_workout_plan(
-                    plan_id=today_workout["plan_id"],
-                    user_id=user_id,
-                    feedback=feedback
-                )
+            # generate a new workout plan for the user
+            await generate_workout_plan(user_id)
         except Exception as e:
             # Log the error but don't fail the schedule update
             print(f"Error updating workout plan after schedule change: {str(e)}")

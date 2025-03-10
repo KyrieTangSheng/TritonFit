@@ -91,7 +91,6 @@ class LLMService:
                                      user_prompt: str, 
                                      temperature: float = 0.7) -> Dict[str, Any]:
         """Generate a completion and parse it as JSON"""
-        print(user_prompt)
         content = await self.generate_completion(
             system_prompt=system_prompt,
             user_prompt=user_prompt,

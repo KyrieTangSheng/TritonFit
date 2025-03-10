@@ -32,21 +32,92 @@ plan_json_format = """
             }}
           ],
           "location": "Gym|Home|Outdoor",
-          "time": "6:00-6:30AM"
+          "time": "17:00:00-18:00:00"
         }},
         ...other days...
       }}
     }}
 """
 
+def normalize_time_format(time_str: str) -> str:
+    """Convert various time formats to standard 24-hour format with seconds (HH:MM:SS-HH:MM:SS)"""
+    if not time_str or time_str == "N/A":
+        return "N/A"
+        
+    try:
+        # Handle various input formats
+        if "-" in time_str:
+            start_time, end_time = time_str.split("-")
+            
+            # Process start time
+            if "AM" in start_time or "PM" in start_time:
+                # Convert from 12-hour to 24-hour format
+                am_pm = "AM" if "AM" in start_time.upper() else "PM"
+                start_time = start_time.upper().replace(am_pm, "").strip()
+                
+                # Add seconds if not present
+                if ":" in start_time:
+                    parts = start_time.split(":")
+                    if len(parts) == 2:
+                        hour, minute = parts
+                        start_time = f"{hour.zfill(2)}:{minute.zfill(2)}:00"
+                    elif len(parts) == 3:
+                        start_time = ":".join(p.zfill(2) for p in parts)
+                else:
+                    # If only hour is provided
+                    start_time = f"{start_time.zfill(2)}:00:00"
+                
+                # Convert to 24-hour format
+                dt = datetime.strptime(f"{start_time} {am_pm}", "%I:%M:%S %p")
+                start_time = dt.strftime("%H:%M:%S")
+            else:
+                # Already in 24-hour format, ensure it has seconds
+                if ":" in start_time:
+                    parts = start_time.split(":")
+                    if len(parts) == 2:
+                        start_time = f"{start_time}:00"
+                else:
+                    start_time = f"{start_time.zfill(2)}:00:00"
+            
+            # Process end time similarly
+            if "AM" in end_time or "PM" in end_time:
+                am_pm = "AM" if "AM" in end_time.upper() else "PM"
+                end_time = end_time.upper().replace(am_pm, "").strip()
+                
+                if ":" in end_time:
+                    parts = end_time.split(":")
+                    if len(parts) == 2:
+                        hour, minute = parts
+                        end_time = f"{hour.zfill(2)}:{minute.zfill(2)}:00"
+                    elif len(parts) == 3:
+                        end_time = ":".join(p.zfill(2) for p in parts)
+                else:
+                    end_time = f"{end_time.zfill(2)}:00:00"
+                
+                dt = datetime.strptime(f"{end_time} {am_pm}", "%I:%M:%S %p")
+                end_time = dt.strftime("%H:%M:%S")
+            else:
+                if ":" in end_time:
+                    parts = end_time.split(":")
+                    if len(parts) == 2:
+                        end_time = f"{end_time}:00"
+                else:
+                    end_time = f"{end_time.zfill(2)}:00:00"
+            
+            return f"{start_time}-{end_time}"
+        else:
+            # If no range is provided, return as is
+            return time_str
+    except Exception as e:
+        print(f"Error normalizing time format: {str(e)}")
+        return time_str  # Return original if parsing fails
+
 async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     """Generate a workout plan based on user profile and schedule"""
     # Get the user's profile and schedule from the database
     db = await get_database()
     user_profile = await db.profiles.find_one({"user_id": user_id})
-    user_schedule = await db.schedules.find_one({"user_id": ObjectId(user_id)})
-    print(user_profile)
-    print(user_schedule)
+    user_schedule = await db.schedules.find_one({"user_id": user_id})
     
     if not user_profile or not user_schedule:
         raise ValueError("User profile or schedule not found")
@@ -64,8 +135,7 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     - Health Conditions: {user_profile.get('health_conditions', [])}
     
     Available Schedule:
-    {user_schedule.get('availability', {})}
-    If user has no schedule, by default the user is available at any time of the day
+    {_format_weekly_slots_for_prompt(user_schedule.get('weekly_slots', []))}
     
     Please create a detailed weekly workout plan for ALL 7 days (Monday through Sunday) in the following JSON format:
     {plan_json_format}
@@ -92,6 +162,9 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
                     "location": "Rest day",
                     "time": "N/A"
                 }
+            else:
+                # Normalize time format
+                days_data[day]["time"] = normalize_time_format(days_data[day].get("time", "N/A"))
         
         # Create and save the workout plan
         # Ensure user_id is a string
@@ -108,6 +181,31 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     
     except Exception as e:
         raise ValueError(f"Failed to generate workout plan: {str(e)}")
+
+def _format_weekly_slots_for_prompt(weekly_slots: List[Dict]) -> str:
+    """Format weekly slots for prompt in a human-readable way"""
+    if not weekly_slots:
+        return "The user has no specific schedule provided. By default, the user is available at any time of the day."
+    
+    # Map numeric day to day name
+    day_map = {
+        0: "Sunday",
+        1: "Monday", 
+        2: "Tuesday", 
+        3: "Wednesday", 
+        4: "Thursday", 
+        5: "Friday", 
+        6: "Saturday"
+    }
+    
+    formatted_slots = []
+    for slot in weekly_slots:
+        day = day_map.get(slot.get('day_of_week'), f"Day {slot.get('day_of_week')}")
+        start = slot.get('start_time', '').split('.')[0]  # Remove milliseconds if present
+        end = slot.get('end_time', '').split('.')[0]
+        formatted_slots.append(f"- {day}: {start} to {end}")
+    
+    return "\n".join(formatted_slots) + "\n\nPlease schedule workouts during these available time slots whenever possible."
 
 async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> WorkoutPlan:
     """Update a workout plan based on user feedback"""
@@ -156,8 +254,6 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
             system_prompt=system_prompt,
             user_prompt=user_prompt
         )
-        
-        print(f"LLM Response: {llm_response}")
         
         # Check if the response has the expected structure
         if "days" in llm_response:
@@ -223,6 +319,9 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
                 day_data["location"] = "Home"
             if "time" not in day_data:
                 day_data["time"] = "Morning"
+            
+            # Normalize time format
+            day_data["time"] = normalize_time_format(day_data.get("time", "N/A"))
                 
         # Add missing days
         for day in DAYS_OF_WEEK:
@@ -242,7 +341,6 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
         return plan
     
     except Exception as e:
-        print(f"Error updating workout plan: {str(e)}")
         raise ValueError(f"Failed to update workout plan: {str(e)}")
 
 async def get_today_workout(user_id: str) -> Optional[Dict]:
