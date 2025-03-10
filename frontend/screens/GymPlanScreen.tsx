@@ -9,8 +9,7 @@ export default function GymPlanScreen({ setCurrentScreen }: any) {
     const [workoutPlan, setWorkoutPlan] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentStep, setCurrentStep] = useState<number>(0);
-    const steps = 1;
-
+    
     useEffect(() => {
         const fetchWorkout = async () => {
             try {
@@ -62,6 +61,8 @@ export default function GymPlanScreen({ setCurrentScreen }: any) {
 
     if (loading) return <ActivityIndicator size="large" color="#C69214" style={styles.loader} />;
     if (!workoutPlan) return <Text style={styles.title}>No workout plan for Today</Text>;
+    const steps = workoutPlan?.workout.workout_items.reduce((acc: any, item: { exercises: string | any[]; }) => acc + item.exercises.length, 0) || 1;
+
 
     return (
         <ScrollView style={styles.container}>
