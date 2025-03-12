@@ -1,28 +1,35 @@
+
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Platform, StatusBar } from 'react-native';
 import { IconButton, Menu } from 'react-native-paper';
 
-export default function Header({ setIsLoggedIn, setCurrentScreen }: { setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>, setCurrentScreen: React.Dispatch<React.SetStateAction<string>> }) {
+interface HeaderProps {
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentScreen: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function Header({ setIsLoggedIn, setCurrentScreen }: HeaderProps) {
   const [visible, setVisible] = useState(false);
 
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
 
   const handleLogOut = () => {
-    setIsLoggedIn(false); // Set login state to false
-    setCurrentScreen('Front'); // Navigate to Login screen
+    setIsLoggedIn(false);
+    setCurrentScreen('Login');
+    closeMenu();
   };
 
   const handleAccountSettings = () => {
-    setIsLoggedIn(true);
-    setCurrentScreen('Preferences'); // Navigate to Preferences screen
+    setCurrentScreen('Preferences');
+    closeMenu();
   };
 
   return (
     <View style={styles.header}>
       <Text style={styles.topLeftText}>TritonFit</Text>
 
-      {/* Dropdown button */}
+      {/* Dropdown Menu */}
       <Menu
         visible={visible}
         onDismiss={closeMenu}
@@ -33,9 +40,9 @@ export default function Header({ setIsLoggedIn, setCurrentScreen }: { setIsLogge
             iconColor="#FFCD00"
             onPress={openMenu}
             style={styles.topRightButton}
+            accessibilityLabel="Open menu"
           />
         }
-        anchorPosition="bottom" // Ensures the dropdown opens below the icon
       >
         <Menu.Item onPress={handleAccountSettings} title="Account Preferences" />
         <Menu.Item onPress={handleLogOut} title="Log Out" />
@@ -47,20 +54,19 @@ export default function Header({ setIsLoggedIn, setCurrentScreen }: { setIsLogge
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Ensures left and right alignment
-    alignItems: 'center', // Centers items vertically
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 50, // Adjust for status bar
-    paddingHorizontal: 20, // Keeps elements spaced from edges
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 50,
+    paddingHorizontal: 20,
     backgroundColor: '#00629B',
-    height: 80, // Ensures space for elements
+    height: 80,
   },
   topLeftText: {
-    fontSize: 24, // Adjust size as needed
-    fontWeight: 'bold', // Make it stand out
-    color: '#FFCD00', // Color for contrast
-    marginRight: 10, // Adds a little space between the text and the icon
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFCD00',
   },
   topRightButton: {
-    zIndex: 1, // Ensures the button is on top of other elements
+    zIndex: 1,
   },
 });
