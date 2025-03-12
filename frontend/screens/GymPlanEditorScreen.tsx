@@ -98,7 +98,7 @@ export default function GymPlanEditorScreen({ setCurrentScreen }: GymPlanScreenE
       setTempCurrentPlan(workoutPlan);
       console.log('Workout Plan:', workoutPlan.workout);    
       // console.log("Pulled in start time:", workoutPlan?.workout?.time)  
-      if (workoutPlan) {
+      if (workoutPlan) 
         // console.log("Here");
         setTempWorkoutPlan(JSON.stringify(workoutPlan, null, 2));
         setCurrentWorkoutItems(workoutPlan.workout?.workout_items || []);
@@ -592,5 +592,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+
   },
 });

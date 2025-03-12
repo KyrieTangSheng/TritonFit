@@ -4,18 +4,35 @@ import logging
 from typing import Dict, Any, List, Optional
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
+from pathlib import Path
 from ..core.config import settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Force load environment variables
-load_dotenv()
+# In Docker, the .env file should be mounted at /app/.env
+dotenv_path = "/app/.env"
+alternative_path = os.path.join(os.getcwd(), ".env")
+
+# Try to load from the Docker path first
+if os.path.exists(dotenv_path):
+    logger.info(f"Loading .env from {dotenv_path}")
+    load_dotenv(dotenv_path=dotenv_path, override=True)
+# Fall back to the current directory
+elif os.path.exists(alternative_path):
+    logger.info(f"Loading .env from {alternative_path}")
+    load_dotenv(dotenv_path=alternative_path, override=True)
+else:
+    logger.warning("No .env file found")
 
 # Get API key directly from environment
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4")
+
+# Log environment variables for debugging (without revealing sensitive values)
+logger.info(f"DATABASE_NAME from env: {os.environ.get('DATABASE_NAME')}")
+logger.info(f"MONGODB_URL from env: {os.environ.get('MONGODB_URL')}")
 
 # Log the API key status (redacted for security)
 if OPENAI_API_KEY:

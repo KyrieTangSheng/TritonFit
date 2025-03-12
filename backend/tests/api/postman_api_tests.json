@@ -197,6 +197,30 @@
 			"item": [
 				{
 					"name": "Get User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has valid user profile structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"    ",
+									"    // Verify the response contains profile data",
+									"    pm.expect(jsonData).to.have.property('username');",
+									"    pm.expect(jsonData).to.have.property('fitness_level');",
+									"    pm.expect(jsonData).to.have.property('workout_categories');",
+									"    pm.expect(jsonData.workout_categories).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [
@@ -206,47 +230,19 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/users/profile",
+							"raw": "{{base_url}}/social/users/{{username}}",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"social",
 								"users",
-								"profile"
+								"{{username}}"
 							]
 						},
-						"description": "Get the authenticated user's profile"
+						"description": "Get a user's public profile by username"
 					},
-					"response": [
-						{
-							"name": "Success",
-							"originalRequest": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "{{token_type}} {{access_token}}"
-									}
-								],
-								"url": {
-									"raw": "{{base_url}}/users/profile",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"users",
-										"profile"
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "Text",
-							"header": [],
-							"cookie": [],
-							"body": ""
-						}
-					]
+					"response": []
 				},
 				{
 					"name": "Update User Profile",
@@ -714,6 +710,66 @@
 								"0"
 							]
 						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Social",
+			"item": [
+				{
+					"name": "Get Recommendations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has valid recommendations structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"    ",
+									"    // Verify the response contains recommendation data",
+									"    // Note: Adjust these expectations based on your actual recommender system response",
+									"    pm.expect(jsonData).to.have.property('recommendations');",
+									"    ",
+									"    if (jsonData.recommendations && Array.isArray(jsonData.recommendations)) {",
+									"        // If recommendations is an array, check that it's not empty",
+									"        if (jsonData.recommendations.length > 0) {",
+									"            // Check the structure of the first recommendation",
+									"            var firstRec = jsonData.recommendations[0];",
+									"            pm.expect(firstRec).to.be.an('object');",
+									"        }",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_type}} {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/social/recommendations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"recommendations"
+							]
+						},
+						"description": "Get personalized recommendations for the current user"
 					},
 					"response": []
 				}

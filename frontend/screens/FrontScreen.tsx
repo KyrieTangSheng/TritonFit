@@ -15,7 +15,7 @@ export default function FrontScreen({ setIsLoggedIn, setCurrentScreen }: FrontSc
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => setCurrentScreen('Preferences')}>
+      <TouchableOpacity style={styles.button} onPress={() => setCurrentScreen('Register')}>
         <Text style={styles.buttonText}>Create Account</Text>
       </TouchableOpacity>
     </View>
