@@ -4,8 +4,8 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { IconButton } from 'react-native-paper'; // Import IconButton
 import RNFS from 'react-native-fs';
-import { WorkoutDetails, Workout, WorkoutItem, Exercise } from '../modifyworkoutplan_src/workoutplanEvent';
-import { workoutPlanCalls } from '../modifyworkoutplan_src/workoutplanCalls';
+import { WorkoutDetails, Workout, WorkoutItem, Exercise } from '../sched_src/workoutplanEvent';
+import { workoutPlanCalls } from '../sched_src/workoutplanCalls';
 interface GymPlanScreenEditorProps {
   setCurrentScreen: (screen: string) => void;
 }
