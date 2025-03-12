@@ -4,8 +4,8 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { IconButton } from 'react-native-paper'; // Import IconButton
 import RNFS from 'react-native-fs';
-import { WorkoutDetails, Workout, WorkoutItem, Exercise } from '../sched_src/workoutplanEvent';
-import { workoutPlanCalls } from '../sched_src/workoutplanCalls';
+import { WorkoutDetails, Workout, WorkoutItem, Exercise } from '../modifyworkoutplan_src/workoutplanEvent';
+import { workoutPlanCalls } from '../modifyworkoutplan_src/workoutplanCalls';
 interface GymPlanScreenEditorProps {
   setCurrentScreen: (screen: string) => void;
 }
@@ -288,11 +288,11 @@ export default function GymPlanEditorScreen({ setCurrentScreen }: GymPlanScreenE
       setSelectedGym(tempSelectedGym);
       setStartTime(tempStartTime);
       setEndTime(tempEndTime);
-      // Alert.alert(
-      //   "Workout Plan Saved",
-      //   `Workout Plan: ${JSON.stringify(updatedPlan.workout, null, 2)}\n` +
-      //   `For API: Day = ${day}, Plan ID = ${plan_id}\n`
-      // );
+      Alert.alert(
+        "Workout Plan Saved",
+        `Workout Plan: ${JSON.stringify(updatedPlan.workout, null, 2)}\n` +
+        `For API: Day = ${day}, Plan ID = ${plan_id}\n`
+      );
       // console.log("API CALL RETURN: ", updatedWorkoutData);
     } catch (error) {
       Alert.alert("Error", error.message);
