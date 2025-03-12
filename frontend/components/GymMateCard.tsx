@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuthToken } from "../sched_src/auth";
-import { API_BASE_URL } from "../sched_src/config"; // Import API base URL
+import { API_BASE_URL } from "../sched_src/config";
 
 type GymMateCardProps = {
   name: string;
@@ -11,47 +11,50 @@ type GymMateCardProps = {
 
 const GymMateCard = ({ name, setCurrentScreen }: GymMateCardProps) => {
   const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchProfile = async () => {
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        console.error("No access token found");
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/social/users/${name}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setProfile(data);
+        await AsyncStorage.setItem("profile_data", JSON.stringify(data));
+        console.log(`Profile of ${name} saved to AsyncStorage.`);
+      } else {
+        console.error("Error fetching profile:", data?.detail || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Request failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = await getAuthToken();
-        if (!token) {
-          console.error("No access token found");
-          return;
-        }
-
-        const response = await fetch(`${API_BASE_URL}/social/users/${name}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          setProfile(data);
-
-          // Save profile to AsyncStorage for ProfileScreen
-          await AsyncStorage.setItem("profile_data", JSON.stringify(data));
-          console.log(`Profile of ${name} saved to AsyncStorage.`);
-        } else {
-          console.error("Error fetching profile:", data.detail);
-        }
-      } catch (error) {
-        console.error("Request failed:", error);
-      }
-    };
-
     fetchProfile();
   }, [name]);
 
   return (
     <TouchableOpacity onPress={() => setCurrentScreen("Profile")}>
       <View style={styles.gymMateCard}>
-        <Text style={styles.name}>{profile ? profile.username : "Loading..."}</Text>
+        <Text style={styles.name}>
+          {isLoading ? "Loading..." : profile?.username || "Unknown"}
+        </Text>
       </View>
     </TouchableOpacity>
   );
