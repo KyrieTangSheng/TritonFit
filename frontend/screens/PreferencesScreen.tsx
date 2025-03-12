@@ -1,50 +1,83 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Dropdown from 'react-native-input-select';
+import { PreferenceSetting, getPreferences, updatePreferences } from  '../sched_src/preferenceCalls';
 
-export default function PreferencesScreen({ setIsLoggedIn, setCurrentScreen }: { setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>, setCurrentScreen: React.Dispatch<React.SetStateAction<string>> }) {
+export default function PreferencesScreen({ setIsLoggedIn, setCurrentScreen }: 
+  { setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>, 
+    setCurrentScreen: React.Dispatch<React.SetStateAction<string>> }) 
+{
 
-  const handleLogOut = () => {
-    setIsLoggedIn(true);
-    setCurrentScreen('Home');
-  };
-
-  const [preferences, setPreferences] = useState({
-    weight: '',
-    height: '',
-    workout_location: [],
-    workout_types: [],
-    gender: undefined as string | undefined,
-    fitness_level: undefined as number | undefined,
+  const [preferences, setPreferences] = useState<PreferenceSetting>({
     dob: '',
+    gender: '',
+    fitness_level: 1,
+    height: 0,
+    weight: 0,
+    workout_location: '',
+    workout_categories: [],
+    workout_types: [],
   });
 
-  const handleChange = (key: string, value: any) => {
+  const [loading, setLoading] = useState(true);
+
+  // Fetch preferences when the component mounts
+  useEffect(() => {
+    async function fetchPreferences() {
+      try {
+        const data = await getPreferences();
+        setPreferences(data);  // Set retrieved preferences
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load preferences');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPreferences();
+  }, []);
+
+  // Handles updating state safely
+  const handleChange = (key: keyof PreferenceSetting, value: any) => {
     setPreferences((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = () => {
-    const requiredFields = ['workout_location', 'workout_types', 'gender', 'fitness_level', 'dob'];
-    
-    if (!requiredFields.every((key) => preferences[key as keyof typeof preferences])) {
+  // Handle form submission
+  const handleSubmit = async () => {
+    const requiredFields: (keyof PreferenceSetting)[] = [
+      'workout_location', 'workout_types', 'gender', 'fitness_level', 'dob'
+    ];
+
+    if (!requiredFields.every((key) => preferences[key])) {
       Alert.alert('Missing Fields', 'Please fill out all required fields before submitting.');
       return;
     }
 
     const dobRegex = /^(0[1-9]|1[0-2])\/([0-2][1-9]|3[0-1])\/\d{4}$/;
     if (!dobRegex.test(preferences.dob)) {
-      Alert.alert('Invalid Date', 'Please enter a valid date of birth in the format MM/DD/YYYY.');
+      Alert.alert('Invalid Date', 'Please enter a valid date of birth in MM/DD/YYYY format.');
       return;
     }
 
-    console.log(preferences);
-      // Show success message
-    Alert.alert('Success', 'Information successfully updated.', [
-    { text: 'OK', onPress: () => setCurrentScreen('Home') }
-    ]);
+    try {
+      await updatePreferences(preferences);
+      Alert.alert('Success', 'Information successfully updated.', [
+        { text: 'OK', onPress: () => setCurrentScreen('Home') }
+      ]);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update preferences.');
+      console.error(error);
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -56,12 +89,13 @@ export default function PreferencesScreen({ setIsLoggedIn, setCurrentScreen }: {
           size={30}
           iconColor="white"
           style={styles.backButton}
-          onPress={handleLogOut}
+          onPress={() => setCurrentScreen('Home')}
         />
 
         <View style={styles.form}>
           <Text style={styles.title}>Preferences</Text>
 
+          {/* Input Fields */}
           {[
             { label: 'Height (optional, in inches)', key: 'height', type: 'numeric' },
             { label: 'Weight (optional, in lbs)', key: 'weight', type: 'numeric' },
@@ -71,15 +105,27 @@ export default function PreferencesScreen({ setIsLoggedIn, setCurrentScreen }: {
               <Text style={styles.label}>{field.label}</Text>
               <TextInput
                 style={styles.input}
-                value={preferences[field.key as keyof typeof preferences]?.toString() || ''}
-                onChangeText={(value) => handleChange(field.key, value)}
+                value={preferences[field.key as keyof PreferenceSetting]?.toString() || ''}
+                onChangeText={(value) => handleChange(field.key as keyof PreferenceSetting, value)}
                 placeholder={field.placeholder || ''}
                 placeholderTextColor="gray"
+                keyboardType={field.type === 'numeric' ? 'numeric' : 'default'}
               />
             </View>
           ))}
 
+          {/* Dropdown Fields */}
           {[
+           {
+              label: 'Gender',
+              key: 'gender',
+              options: [
+                { label: 'Female', value: 'Female' },
+                { label: 'Male', value: 'Male' },
+                { label: 'Non-Binary', value: 'Non-Binary' },
+                { label: "Don't want to answer", value: 'Prefer Not to Say' },
+              ],
+            },
             {
               label: 'Workout Location',
               key: 'workout_location',
@@ -90,26 +136,26 @@ export default function PreferencesScreen({ setIsLoggedIn, setCurrentScreen }: {
               ],
             },
             {
+              label: 'Workout Categories',
+              key: 'workout_categories',
+              options: [
+                 { label: 'Strength Training', value: 'Strength' },
+                 { label: 'Cardio', value: 'Cardio' },
+                 { label: 'Stretching', value: 'Stretching' },
+              ],
+               isMultiple: true,
+            },
+            {
               label: 'Workout Types',
               key: 'workout_types',
               options: [
                 { label: 'Core', value: 'Core' },
-                { label: 'Chest', value: 'Chest' },
+                { label: 'Chest', value: 'Chest'},
                 { label: 'Back', value: 'Back' },
                 { label: 'Arms', value: 'Arms' },
                 { label: 'Legs', value: 'Legs' },
               ],
               isMultiple: true,
-            },
-            {
-              label: 'Gender',
-              key: 'gender',
-              options: [
-                { label: 'Female', value: 'Female' },
-                { label: 'Male', value: 'Male' },
-                { label: 'Non-Binary', value: 'Non-Binary' },
-                { label: "Don't want to answer", value: 'Prefer Not to Say' },
-              ],
             },
             {
               label: 'Fitness Level',
@@ -124,18 +170,18 @@ export default function PreferencesScreen({ setIsLoggedIn, setCurrentScreen }: {
             <View key={dropdown.key}>
               <Text style={styles.label}>{dropdown.label}</Text>
               <Dropdown
-                placeholder='Select your option(s)'
+                placeholder="Select your option(s)"
                 dropdownStyle={styles.select}
                 selectedItemStyle={styles.selectedItem}
                 options={dropdown.options}
                 isMultiple={dropdown.isMultiple}
-                selectedValue={preferences[dropdown.key as keyof typeof preferences]}
-                onValueChange={(value) => handleChange(dropdown.key, value)}
-                
+                selectedValue={preferences[dropdown.key as keyof PreferenceSetting]}
+                onValueChange={(value) => handleChange(dropdown.key as keyof PreferenceSetting, value)}
               />
             </View>
           ))}
 
+          {/* Submit Button */}
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Update</Text>
           </TouchableOpacity>
@@ -178,7 +224,6 @@ const styles = StyleSheet.create({
   },
   input: {
     borderColor: '#ccc',
-    
     borderWidth: 1,
     borderRadius: 5,
     padding: 10,
@@ -209,7 +254,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  loadingContainer: {
+    flex: 1, justifyContent: 'center', alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 20, color: 'white',
+  },
 });
-
 
 

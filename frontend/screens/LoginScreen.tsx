@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import {API_BASE_URL} from "../sched_src/config.ts";
 import {setAuthToken} from "../sched_src/auth.ts"
+import { IconButton } from 'react-native-paper'; // Import IconButton
 import axios from "axios";
 
 interface LoginScreenProps {
@@ -35,28 +36,50 @@ export default function LoginScreen({ setIsLoggedIn, setCurrentScreen }: LoginSc
   };
 
   return (
-    <View style={styles.login}>
-      <Text style={styles.textInputLabel}>Username</Text>
-      <TextInput
-        style={styles.textInput}
-        onChangeText={setUsername}
-        value={username}
-      />
+    <View style={styles.container}>
+        <IconButton 
+          icon="arrow-left" 
+          size={24} 
+          iconColor="#FFCD00" 
+          style={styles.backButton}
+          onPress={() => setCurrentScreen('Front')}
+        />
+      <View style={styles.login}>
 
-      <Text style={styles.textInputLabel}>Password</Text>
-      <TextInput
-        style={styles.textInput}
-        secureTextEntry={true}
-        onChangeText={setPassword}
-        value={password}
-      />
+        <Text style={styles.textInputLabel}>Username</Text>
+        <TextInput
+          testID="username-input"
+          style={styles.textInput}
+          onChangeText={setUsername}
+          value={username}
+        />
 
-      <Button title="Login" onPress={handleLogin} color="#FFCD00" />
+        <Text style={styles.textInputLabel}>Password</Text>
+        <TextInput
+          testID="password-input"
+          style={styles.textInput}
+          secureTextEntry={true}
+          onChangeText={setPassword}
+          value={password}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Log In</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#182B49",
+    paddingBottom: 40,
+    width: "100%",
+  },
   title: {
     fontSize: 48,
     fontWeight: 'bold',
@@ -88,10 +111,16 @@ const styles = StyleSheet.create({
     color: 'white',
     borderWidth: 1,
     borderColor: 'white',
-    borderRadius: 5,
+    borderRadius: 8,
     marginBottom: 10,
   },
   login: {
     width: 190,
-  }
+  },
+  backButton: { 
+    position: 'absolute',
+    top: '3%',
+    left: 0, 
+    zIndex: 10,
+  },
 });
