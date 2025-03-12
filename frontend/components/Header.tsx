@@ -16,7 +16,7 @@ export default function Header({ setIsLoggedIn, setCurrentScreen }: HeaderProps)
 
   const handleLogOut = () => {
     setIsLoggedIn(false);
-    setCurrentScreen('Login');
+    setCurrentScreen('Front');
     closeMenu();
   };
 
