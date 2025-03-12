@@ -1,5 +1,5 @@
 // npm i @react-native-async-storage/async-storage
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // 
 
 const AUTH_TOKEN_KEY = 'auth_token';
 const USER_KEY = 'user_data';
