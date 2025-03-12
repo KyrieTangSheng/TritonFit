@@ -22,3 +22,4 @@ export const getAuthToken = async () => {
 export const clearAuth = async () => {
     await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, USER_KEY]);
 };
+
