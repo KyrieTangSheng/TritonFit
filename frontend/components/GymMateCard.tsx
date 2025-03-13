@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuthToken } from "../sched_src/auth";
@@ -11,7 +11,6 @@ type GymMateCardProps = {
 
 const GymMateCard = ({ name, setCurrentScreen }: GymMateCardProps) => {
   const [profile, setProfile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async () => {
     try {
@@ -35,26 +34,19 @@ const GymMateCard = ({ name, setCurrentScreen }: GymMateCardProps) => {
         setProfile(data);
         await AsyncStorage.setItem("profile_data", JSON.stringify(data));
         console.log(`Profile of ${name} saved to AsyncStorage.`);
+        setCurrentScreen("Profile"); // Navigate to profile after saving
       } else {
         console.error("Error fetching profile:", data?.detail || "Unknown error");
       }
     } catch (error) {
       console.error("Request failed:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, [name]);
-
   return (
-    <TouchableOpacity onPress={() => setCurrentScreen("Profile")}>
+    <TouchableOpacity onPress={fetchProfile}>
       <View style={styles.gymMateCard}>
-        <Text style={styles.name}>
-          {isLoading ? "Loading..." : profile?.username || "Unknown"}
-        </Text>
+        <Text style={styles.name}>{name}</Text>
       </View>
     </TouchableOpacity>
   );
