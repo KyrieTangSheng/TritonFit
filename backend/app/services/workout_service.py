@@ -112,6 +112,85 @@ def normalize_time_format(time_str: str) -> str:
         print(f"Error normalizing time format: {str(e)}")
         return time_str  # Return original if parsing fails
 
+def generate_fallback_workout_plan(fitness_level: str = "beginner") -> Dict:
+    """Generate a basic fallback workout plan when LLM generation fails"""
+    # Create a simple, generic workout plan based on fitness level
+    days_data = {}
+    
+    # Define basic workout templates by fitness level
+    if fitness_level.lower() == "advanced":
+        strength_exercises = [
+            {"name": "Barbell Squat", "sets": 4, "reps_per_set": 8, "rest_between_sets": "90 sec", 
+             "equipment": ["barbell"], "difficulty": "advanced", "notes": "Focus on form"},
+            {"name": "Deadlift", "sets": 4, "reps_per_set": 6, "rest_between_sets": "120 sec", 
+             "equipment": ["barbell"], "difficulty": "advanced", "notes": "Keep back straight"}
+        ]
+        cardio_duration = "45 min"
+    elif fitness_level.lower() == "intermediate":
+        strength_exercises = [
+            {"name": "Dumbbell Squat", "sets": 3, "reps_per_set": 10, "rest_between_sets": "60 sec", 
+             "equipment": ["dumbbells"], "difficulty": "intermediate", "notes": "Shoulder-width stance"},
+            {"name": "Push-ups", "sets": 3, "reps_per_set": 12, "rest_between_sets": "60 sec", 
+             "equipment": ["none"], "difficulty": "intermediate", "notes": "Keep core engaged"}
+        ]
+        cardio_duration = "30 min"
+    else:  # beginner
+        strength_exercises = [
+            {"name": "Bodyweight Squat", "sets": 2, "reps_per_set": 12, "rest_between_sets": "45 sec", 
+             "equipment": ["none"], "difficulty": "beginner", "notes": "Focus on form"},
+            {"name": "Wall Push-ups", "sets": 2, "reps_per_set": 10, "rest_between_sets": "45 sec", 
+             "equipment": ["none"], "difficulty": "beginner", "notes": "Keep body straight"}
+        ]
+        cardio_duration = "20 min"
+    
+    # Create a basic weekly plan
+    for day in DAYS_OF_WEEK:
+        if day in ["Monday", "Wednesday", "Friday"]:
+            # Strength days
+            days_data[day] = {
+                "workout_items": [
+                    {
+                        "type": "strength",
+                        "duration": "45 min",
+                        "exercises": strength_exercises
+                    }
+                ],
+                "location": "Home",
+                "time": "17:00:00-18:00:00"
+            }
+        elif day in ["Tuesday", "Thursday"]:
+            # Cardio days
+            days_data[day] = {
+                "workout_items": [
+                    {
+                        "type": "cardio",
+                        "duration": cardio_duration,
+                        "exercises": [
+                            {
+                                "name": "Brisk Walking" if fitness_level.lower() == "beginner" else "Jogging",
+                                "sets": 1,
+                                "reps_per_set": 1,
+                                "rest_between_sets": "0 sec",
+                                "equipment": ["none"],
+                                "difficulty": fitness_level.lower(),
+                                "notes": "Maintain steady pace"
+                            }
+                        ]
+                    }
+                ],
+                "location": "Outdoor",
+                "time": "17:00:00-18:00:00"
+            }
+        else:
+            # Rest days (Saturday, Sunday)
+            days_data[day] = {
+                "workout_items": [],
+                "location": "Rest day",
+                "time": "N/A"
+            }
+    
+    return {"days": days_data}
+
 async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     """Generate a workout plan based on user profile and schedule"""
     # Get the user's profile and schedule from the database
@@ -122,13 +201,16 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
     if not user_profile or not user_schedule:
         raise ValueError("User profile or schedule not found")
     
+    # Get user's fitness level for potential fallback
+    fitness_level = user_profile.get('fitness_level', 'beginner')
+    
     # Prepare the prompt for LLM
     user_prompt = f"""
     Create a personalized workout plan based on the following information:
     
     User Profile:
     - Fitness Goals: {user_profile.get('fitness_goals', [])}
-    - Fitness Level: {user_profile.get('fitness_level', 'beginner')}
+    - Fitness Level: {fitness_level}
     - Age: {user_profile.get('age')}
     - Weight: {user_profile.get('weight')}
     - Height: {user_profile.get('height')}
@@ -151,6 +233,11 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
             system_prompt=system_prompt,
             user_prompt=user_prompt
         )
+        
+        # Validate the LLM response
+        if not plan_data or not isinstance(plan_data, dict) or "days" not in plan_data:
+            print(f"LLM returned invalid workout plan format. Using fallback plan. LLM response: {plan_data}")
+            plan_data = generate_fallback_workout_plan(fitness_level)
         
         # Ensure all days of the week are included
         days_data = plan_data.get("days", {})
@@ -180,7 +267,21 @@ async def generate_workout_plan(user_id: str) -> WorkoutPlan:
         return workout_plan
     
     except Exception as e:
-        raise ValueError(f"Failed to generate workout plan: {str(e)}")
+        print(f"Error generating workout plan: {str(e)}. Using fallback plan.")
+        # Use fallback plan if LLM generation fails
+        fallback_plan_data = generate_fallback_workout_plan(fitness_level)
+        
+        # Create and save the fallback workout plan
+        str_user_id = str(user_id)
+        workout_plan = WorkoutPlan(
+            user_id=str_user_id,
+            days=fallback_plan_data["days"]
+        )
+        
+        # Save to database
+        await db.workout_plans.insert_one(workout_plan.dict())
+        
+        return workout_plan
 
 def _format_weekly_slots_for_prompt(weekly_slots: List[Dict]) -> str:
     """Format weekly slots for prompt in a human-readable way"""
@@ -232,6 +333,7 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
     plan.version = new_version
     plan.updated_at = datetime.now()
     
+    # 09:00-10:00 AM
     # Prepare prompts for LLM
     user_prompt = f"""
     Please update this workout plan based on the following feedback:
@@ -341,7 +443,15 @@ async def update_workout_plan(plan_id: str, user_id: str, feedback: str) -> Work
         return plan
     
     except Exception as e:
-        raise ValueError(f"Failed to update workout plan: {str(e)}")
+        print(f"Failed to update workout plan: {str(e)}. Keeping original plan.")
+        # Add a note to the feedback history that the update failed
+        plan.feedback_history[-1].notes = f"Update failed: {str(e)}"
+        
+        # Save the plan with updated feedback history but original workout content
+        await db.workout_plans.replace_one({"id": str_plan_id}, plan.dict())
+        
+        # Return the original plan
+        return plan
 
 async def get_today_workout(user_id: str) -> Optional[Dict]:
     """Get the workout plan for the current day of the week"""
