@@ -1,9 +1,8 @@
-// screens/SocialScreen.tsx
-import React, {useEffect, useState} from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import GymMateCard from "../components/GymMateCard";
-import {API_BASE_URL} from "../sched_src/config.ts";
-import {getAuthToken} from "../sched_src/auth.ts";
+import { API_BASE_URL } from "../sched_src/config.ts";
+import { getAuthToken } from "../sched_src/auth.ts";
 import axios from "axios";
 
 type GymMate = {
@@ -15,36 +14,41 @@ type GymMate = {
   };
   similarity: number;
   username: string;
-}
-
+};
 
 export default function SocialScreen({ setCurrentScreen }: any) {
-  const[recommendation, setRecommendation] = useState<GymMate[]>([]);
+  const [recommendation, setRecommendation] = useState<GymMate[]>([]);
 
   useEffect(() => {
     getAuthToken()
-      .then(token => {
-        console.log(token)
-        let auth_str = `Bearer ${token}`
-        axios.get(`${API_BASE_URL}/social/recommendations`, {
-          'headers': {
-            'Authorization': auth_str
-          }
-        })
-          .then(response => {
+      .then((token) => {
+        console.log(token);
+        let auth_str = `Bearer ${token}`;
+        axios
+          .get(`${API_BASE_URL}/social/recommendations`, {
+            headers: {
+              Authorization: auth_str,
+            },
+          })
+          .then((response) => {
             console.log(response.data.recommendations);
             setRecommendation(response.data.recommendations);
           })
-          .catch(error => {
-            console.error(error)
+          .catch((error) => {
+            console.error(error);
           });
       })
-      .catch(error => {
-        console.error(error)
-      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
-  }, [])
-  
+  // Handler to store data in AsyncStorage when a card is clicked
+  const handleCardClick = (mate: GymMate) => {
+    // Pass the selected mate's data to GymMateCard
+    console.log("Card clicked", mate);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
@@ -58,8 +62,6 @@ export default function SocialScreen({ setCurrentScreen }: any) {
         <GymMateCard
           key={index}
           name={mate.username}
-          // location={mate.location}
-          // activities={mate.activities}
           setCurrentScreen={setCurrentScreen}
         />
       ))}
@@ -69,47 +71,17 @@ export default function SocialScreen({ setCurrentScreen }: any) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: '5%',
-    height: '100%',
-    backgroundColor: '#182B49',
+    padding: "5%",
+    height: "100%",
+    backgroundColor: "#182B49",
   },
   text: {
-    color: 'white',
+    color: "white",
   },
   title: {
     fontSize: 30,
     marginTop: 30,
-    color: 'white',
+    color: "white",
     marginBottom: 12,
-  },
-  button: {
-    backgroundColor: '#C69214',
-    paddingTop: 8,
-    paddingRight: 10,
-    paddingBottom: 8,
-    paddingLeft: 10,
-    borderRadius: 8,
-    marginBottom: 30, // Adds spacing between buttons
-    width: 190,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  textInputLabel: {
-    color: 'white',
-    alignSelf: 'flex-start',
-    fontSize: 16,
-  },
-  textInput: {
-    color: 'white',
-    borderWidth: 1,
-    borderColor: 'white',
-    borderRadius: 5,
-  },
-  login: {
-    width: 190,
   },
 });
